@@ -205,8 +205,14 @@ float integrate_trapezoidal_student(
 {
 	cg_assert(x.size() == y.size());
 	cg_assert(x.size() > 1);
-
-	return 0.f;
+	
+	float result = 0.f;
+	for (long int i = 0; i < x.size(); i++){
+		float trapez = (x[i+1] - x[i]) * (y[i+1] - y[i]) / 2.f;
+		result += trapez; 
+	}
+	std::cout << result << "was result of trapez integration" << std::endl;
+	return result;
 }
 
 /*
@@ -226,6 +232,24 @@ glm::vec3 spectrum_to_rgb(std::vector<float> const& spectrum)
 {
 	cg_assert(spectrum.size() == cmf::wavelengths.size());
 
-	return glm::vec3(0.f);
+	// georg code --------------------
+	std::vector<float> red_integrand; 
+	std::vector<float> green_integrand; 
+	std::vector<float> blue_integrand; 
+	for( int i = 0; i < spectrum.size(); i++){
+		//fill integrands
+		red_integrand.push_back(spectrum[i] * cmf::x[i]);
+		green_integrand.push_back(spectrum[i] * cmf::y[i]);
+		blue_integrand.push_back(spectrum[i] * cmf::z[i]);
+	}
+	glm::vec3 color(
+		integrate_trapezoidal(cmf::wavelengths,red_integrand),
+		integrate_trapezoidal(cmf::wavelengths,green_integrand),
+		integrate_trapezoidal(cmf::wavelengths,blue_integrand)
+	);
+
+	return color;
+	// end georg ----------------....
+	//return glm::vec3(0.f);
 }
 // CG_REVISION 42b7d49b5accd3095c8011943ba7d6c5e3a12b86
