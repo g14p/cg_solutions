@@ -19,7 +19,7 @@ void draw_triangles(
 	cg_assert(vertices.size() == colors.size());
 	cg_assert(vertices.size() % 3 == 0);
 	// Note: Everything here is executed repeatedly
-        // My code
+		// My code
 	glm::vec3 blue(0.0, 0.0, 1.0);
 	glm::vec3 pos_blue(1.0,1.0,0.0);
 	glBegin(GL_TRIANGLES);
@@ -27,7 +27,7 @@ void draw_triangles(
 		glColor3fv(&(colors[i])[0]);
 		glVertex3fv(&(vertices[i])[0]);
 	}
-        // my code end
+		// my code end
 	glEnd();
 }
 
@@ -45,20 +45,20 @@ void draw_triangles(
  *
  * An example for N = 3:
  *
- *   ^
- *   |  ----------
- *   |  |\ |\ |\ |
- *   |  | \| \| \|
- *   |  ----------
- *   |  |\ |\ |\ |
- * y |  | \| \| \|
- *   |  ----------
- *   |  |\ |\ |\ |
- *   |  | \| \| \|
- *   |  ----------
- *   |
- *   |-------------->
- *          x
+ *	 ^
+ *	 |	----------
+ *	 |	|\ |\ |\ |
+ *	 |	| \| \| \|
+ *	 |	----------
+ *	 |	|\ |\ |\ |
+ * y |	| \| \| \|
+ *	 |	----------
+ *	 |	|\ |\ |\ |
+ *	 |	| \| \| \|
+ *	 |	----------
+ *	 |
+ *	 |-------------->
+ *			x
  *
  */
 void generate_grid(
@@ -73,8 +73,8 @@ void generate_grid(
 	vertices->clear();
 	indices->clear();
 
-        // Phoebes code begin ---------------------------------------------------
-        //create the vertices
+		// Phoebes code begin ---------------------------------------------------
+		//create the vertices
 	for (long long i = 0; i <= N; i++) { //y
 		for (long long j = 0; j <= N; j++) { //x
 			vertices->push_back(glm::vec3(((float)j)/N, ((float)i)/N, 0));
@@ -102,25 +102,25 @@ void generate_grid(
  * the triangles, you need to disable the client states again.
  */
 void draw_indexed_triangles(
-	std::vector<glm::vec3>  const& vertices,
-	std::vector<glm::vec3>  const& colors,
+	std::vector<glm::vec3>	const& vertices,
+	std::vector<glm::vec3>	const& colors,
 	std::vector<glm::uvec3> const& indices)
 {
 	cg_assert(vertices.size() == colors.size());
-        // The actual drawing happens here..
-        glEnableClientState(GL_VERTEX_ARRAY);
-        glEnableClientState(GL_COLOR_ARRAY);
+	// The actual drawing happens here..
+	glEnableClientState(GL_VERTEX_ARRAY);
+	glEnableClientState(GL_COLOR_ARRAY);
 
-        glVertexPointer(3, GL_FLOAT, 0, vertices.data());
-        glColorPointer(3,GL_FLOAT, 0, colors.data());
+	glVertexPointer(3, GL_FLOAT, 0, vertices.data());
+	glColorPointer(3,GL_FLOAT, 0, colors.data());
 
-        glDrawElements(
-                GL_TRIANGLES, indices.size() * 3, 
-                GL_UNSIGNED_INT, indices.data() 
-        );
-        
-        glDisableClientState(GL_VERTEX_ARRAY);
-        glDisableClientState(GL_COLOR_ARRAY);
+	glDrawElements(
+			GL_TRIANGLES, indices.size() * 3, 
+			GL_UNSIGNED_INT, indices.data() 
+	);
+	
+	glDisableClientState(GL_VERTEX_ARRAY);
+	glDisableClientState(GL_COLOR_ARRAY);
 }
 
 /*
@@ -136,14 +136,14 @@ void draw_indexed_triangles(
  *
  * An example for N = 3:
  *
- *   ^
- *   |  ----------
- *   |  | /| /| /|
- * y |  |/ |/ |/ |
- *   |  ----------
- *   |
- *   |-------------->
- *           x
+ *	 ^
+ *	 |	----------
+ *	 |	| /| /| /|
+ * y |	|/ |/ |/ |
+ *	 |	----------
+ *	 |
+ *	 |-------------->
+ *			 x
  *
  */
 void generate_strip(
@@ -154,8 +154,17 @@ void generate_strip(
 	cg_assert(vertices);
 
 	vertices->clear();
-
+	// Georg Code ----------------------------
+	vertices->push_back(glm::vec3(0.0, 1.0, 0.0));
+	for (long i = 0; i < N; i++) { 
+		vertices->push_back(glm::vec3(((float)i)/N, 0.0 , 0));
+		vertices->push_back(glm::vec3(((float)i)/N, 1.0 , 0));
+	}
+	vertices->push_back(glm::vec3(1.0, 0.0, 0.0));
+	// Georg Code End -------------------------
 }
+
+
 
 /*
  * Draw the given vertices as a triangle strip.
@@ -166,6 +175,18 @@ void draw_triangle_strip(
 	std::vector<glm::vec3> const& colors)
 {
 	cg_assert(vertices.size() == colors.size());
+	// Georg Code Start --------------------------
+	glBegin(GL_TRIANGLE_STRIP);
+
+	for(long i = 0; i < vertices.size(); i++){
+		glColor3fv(&(colors[i])[0]);
+		glVertex3fv(&(vertices[i])[0]);
+
+		std::cout<<"Vertex: "<<vertices[i].x<<"|"<<vertices[i].y<<std::endl;
+	}
+	
+	glEnd();
+	// Georg Code End --------------------------
 
 }
 
@@ -174,9 +195,9 @@ void draw_triangle_strip(
  * using trapezoidal integration.
  *
  * The function is given at points
- *     x[0], ..., x[N]
+ *	   x[0], ..., x[N]
  * and its corresponding values are
- *     y[0], ..., y[N]
+ *	   y[0], ..., y[N]
  */
 float integrate_trapezoidal_student(
 	std::vector<float> const& x,
@@ -194,9 +215,9 @@ float integrate_trapezoidal_student(
  *
  * The color matching functions and the wavelengths
  * for which they are given can be found in
- *     cglib/colors/cmf.h
+ *	   cglib/colors/cmf.h
  * and
- *     cglib/src/colors/cmf.cpp
+ *	   cglib/src/colors/cmf.cpp
  *
  * The wavelengths corresponding to the spectral values 
  * given in spectrum are defined in cmf::wavelengths
