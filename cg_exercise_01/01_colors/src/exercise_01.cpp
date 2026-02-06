@@ -205,10 +205,17 @@ float integrate_trapezoidal_student(
 	cg_assert(x.size() > 1);
 	
 	float result = 0.f;
-	for (long int i = 0; i < x.size() - 1; i++){
-		float trapez = (x[i+1] - x[i]) * (y[i+1] - y[i]) / 2.f;
+	int n = x.size();
+	float a = x[0];
+	float b = x[n-1];
+	float h = (b - a) / n; 
+	float fb = y[n-1];
+	float fa = y[0]; 
+	for (long int i = 0; i < n-1; i++){
+		float trapez = y[i+1] + 0.5 * h * (fb - fa) ;
 		result += trapez; 
 	}
+	result = h * result;
 	std::cout << result << "was result of trapez integration" << std::endl;
 	return result;
 }
@@ -231,25 +238,35 @@ glm::vec3 spectrum_to_rgb(std::vector<float> const& spectrum)
 	cg_assert(spectrum.size() == cmf::wavelengths.size());
 
 	// georg code --------------------
-	std::vector<float> red_integrand; 
-	std::vector<float> green_integrand; 
-	std::vector<float> blue_integrand; 
-	for( int i = 0; i < spectrum.size(); i++){
+	//std::vector<std::vector<float>> rgb_integrand; // structure: [ r1, g1, b1, ... , rN, gN, bN]
+	std::vector<float> r_integrand;
+	std::vector<float> g_integrand;
+	std::vector<float> b_integrand;
+	for( long unsigned int i = 0; i < spectrum.size(); i++){
 			//fill integrands
-			red_integrand.push_back(spectrum[i] * cmf::x[i]);
-			green_integrand.push_back(spectrum[i] * cmf::y[i]);
-			blue_integrand.push_back(spectrum[i] * cmf::z[i]);
-			std::cout<<"spectrum[i] = "<<spectrum[i]<< " | cmf=(" <<cmf::x[i] << ", " << cmf::y[i] << ", "<<cmf::z[i] << ")";
-			std::cout<<"| Red value: at i="<<i<<"  | "<<red_integrand[i]<<std::endl;
+			glm::vec3 xyz( cmf::x[i],  cmf::y[i],  cmf::z[i]); // 3-vec of floats
+			glm::vec3 rgb;
+			rgb = xyz;//convert::rgb_to_hsv(xyz);
+			/*
+			for (long unsigned int basecolor = 0; basecolor < 2; basecolor++)
+			{
+				rgb_integrand[basecolor].push_back(spectrum[i] * rgb[basecolor]);
+			}
+			*/
+			r_integrand.push_back(spectrum[i] * rgb.x);
+			g_integrand.push_back(spectrum[i] * rgb.y);
+			b_integrand.push_back(spectrum[i] * rgb.z);
 	}
+	std::cout << "Size of rgb integrand : "<<r_integrand.size();
+	std::cout << "Sizte of wavelen : "<<cmf::wavelengths.size() << std::endl;
+	
 	glm::vec3 color(
-			10e4* integrate_trapezoidal_student(cmf::wavelengths,red_integrand),
-			10e4* integrate_trapezoidal_student(cmf::wavelengths,green_integrand),
-			10e4* integrate_trapezoidal_student(cmf::wavelengths,blue_integrand)
+			integrate_trapezoidal(cmf::wavelengths, r_integrand),
+			integrate_trapezoidal(cmf::wavelengths, g_integrand),
+			integrate_trapezoidal(cmf::wavelengths, b_integrand)
 	);
 
-	return color;
-	// end georg ----------------....
-	//return glm::vec3(0.f);
+	return convert::xyz_to_rgb(color);
+	// end georg ---------------------
 }
 // CG_REVISION 42b7d49b5accd3095c8011943ba7d6c5e3a12b86
