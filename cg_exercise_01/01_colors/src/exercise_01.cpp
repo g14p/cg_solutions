@@ -158,7 +158,7 @@ void generate_strip(
 	vertices->push_back(glm::vec3(0.0, 1.0, 0.0));
 	for (long i = 0; i < N; i++) { 
 		vertices->push_back(glm::vec3(((float)i)/N, 0.0 , 0));
-		vertices->push_back(glm::vec3(((float)i)/N, 1.0 , 0));
+		vertices->push_back(glm::vec3(((float)(i+1))/N, 1.0 , 0));
 	}
 	vertices->push_back(glm::vec3(1.0, 0.0, 0.0));
 	// Georg Code End -------------------------
@@ -181,8 +181,6 @@ void draw_triangle_strip(
 	for(long i = 0; i < vertices.size(); i++){
 		glColor3fv(&(colors[i])[0]);
 		glVertex3fv(&(vertices[i])[0]);
-
-		std::cout<<"Vertex: "<<vertices[i].x<<"|"<<vertices[i].y<<std::endl;
 	}
 	
 	glEnd();
@@ -207,7 +205,7 @@ float integrate_trapezoidal_student(
 	cg_assert(x.size() > 1);
 	
 	float result = 0.f;
-	for (long int i = 0; i < x.size(); i++){
+	for (long int i = 0; i < x.size() - 1; i++){
 		float trapez = (x[i+1] - x[i]) * (y[i+1] - y[i]) / 2.f;
 		result += trapez; 
 	}
@@ -237,15 +235,17 @@ glm::vec3 spectrum_to_rgb(std::vector<float> const& spectrum)
 	std::vector<float> green_integrand; 
 	std::vector<float> blue_integrand; 
 	for( int i = 0; i < spectrum.size(); i++){
-		//fill integrands
-		red_integrand.push_back(spectrum[i] * cmf::x[i]);
-		green_integrand.push_back(spectrum[i] * cmf::y[i]);
-		blue_integrand.push_back(spectrum[i] * cmf::z[i]);
+			//fill integrands
+			red_integrand.push_back(spectrum[i] * cmf::x[i]);
+			green_integrand.push_back(spectrum[i] * cmf::y[i]);
+			blue_integrand.push_back(spectrum[i] * cmf::z[i]);
+			std::cout<<"spectrum[i] = "<<spectrum[i]<< " | cmf=(" <<cmf::x[i] << ", " << cmf::y[i] << ", "<<cmf::z[i] << ")";
+			std::cout<<"| Red value: at i="<<i<<"  | "<<red_integrand[i]<<std::endl;
 	}
 	glm::vec3 color(
-		integrate_trapezoidal(cmf::wavelengths,red_integrand),
-		integrate_trapezoidal(cmf::wavelengths,green_integrand),
-		integrate_trapezoidal(cmf::wavelengths,blue_integrand)
+			10e4* integrate_trapezoidal_student(cmf::wavelengths,red_integrand),
+			10e4* integrate_trapezoidal_student(cmf::wavelengths,green_integrand),
+			10e4* integrate_trapezoidal_student(cmf::wavelengths,blue_integrand)
 	);
 
 	return color;
