@@ -27,7 +27,22 @@ bool intersect_sphere(
     cg_assert(t);
 	cg_assert(std::fabs(glm::length(ray_direction) - 1.f) < EPSILON);
 
-    return false;
+    //-------------------Begin Georg Solution -------------------------------
+    #include<cmath> 
+    //intersection leads to need of solving at**2+bt+c=r**2 for t
+    // with coefficients a, b, c being:
+    float c = ray_origin.x * ray_origin.x + ray_origin.y * ray_origin.y + ray_origin.z * ray_origin.z; 
+    float a = ray_direction.x * ray_direction.x + ray_direction.y * ray_direction.y + ray_direction.z * ray_direction.z; 
+    float b = 2 * (ray_origin.x * ray_direction.x + ray_origin.y * ray_direction.y + ray_origin.z * ray_direction.z); 
+    // analytically we get t= -0.5b +- sqrt( 0.25b**2 + (r**2 - c)/a )
+    float discriminant = 0.25 * b * b + (radius * radius - c) / a;
+    if (discriminant < 0) return false; // else the squareroot is real
+    // case 1: squareroot counts negative --> ray shoots out of sphere --> t_small
+    // case 2: squareroot counts positive --> ray shoots into sphere --> t_big
+    // we prefer t_small for some reason. maybe the ray shoots to the user?!
+    *(t) = (float)(-0.5 * b  - sqrt(discriminant)); 
+    return true;
+    //-------------------End Georg Solution ---------------------------------
 }
 
 /*
