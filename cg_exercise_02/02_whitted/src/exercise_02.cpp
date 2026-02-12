@@ -28,20 +28,27 @@ bool intersect_sphere(
 	cg_assert(std::fabs(glm::length(ray_direction) - 1.f) < EPSILON);
 
     //-------------------Begin Georg Solution -------------------------------
-    #include<cmath> 
-    //intersection leads to need of solving at**2+bt+c=r**2 for t
+    //intersection leads to need of solving at**2+bt+c=0 for t
     // with coefficients a, b, c being:
-    float c = ray_origin.x * ray_origin.x + ray_origin.y * ray_origin.y + ray_origin.z * ray_origin.z; 
-    float a = ray_direction.x * ray_direction.x + ray_direction.y * ray_direction.y + ray_direction.z * ray_direction.z; 
-    float b = 2 * (ray_origin.x * ray_direction.x + ray_origin.y * ray_direction.y + ray_origin.z * ray_direction.z); 
-    // analytically we get t= -0.5b +- sqrt( 0.25b**2 + (r**2 - c)/a )
-    float discriminant = 0.25 * b * b + (radius * radius - c) / a;
-    if (discriminant < 0) return false; // else the squareroot is real
-    // case 1: squareroot counts negative --> ray shoots out of sphere --> t_small
-    // case 2: squareroot counts positive --> ray shoots into sphere --> t_big
-    // we prefer t_small for some reason. maybe the ray shoots to the user?!
-    *(t) = (float)(-0.5 * b  - sqrt(discriminant)); 
-    return true;
+    a = glm::dot(ray_direction, ray_direction);
+    b = 2 * glm::dot(ray_direction, ray_origin - center);
+    c = glm::dot(ray_origin - center, ray_origin - center) - pow(radius, 2); 
+    // analytically we get t= ( b +- sqrt( b**2 - 4ac )) / 2a
+    float discriminant = b * b - 4*a*c;
+
+    if (discriminant < 0) return false; // squareroot is complex -> no intersection
+    else if (discriminant == 0) { // intersect in tangent style :)
+        *t = b / (2*a);
+        return true;
+    }
+    else{ //pierce the ball
+        if (*t<0) return false; // we only consider halbgerade
+        // case 1: squareroot counts negative --> ray shoots out of sphere --> t_small
+        // case 2: squareroot counts positive --> ray shoots into sphere --> t_big
+        // we prefer t_small for some reason. maybe the ray shoots to the user?!
+        *t = (float)(-b  - sqrt(discriminant)) / (2 * a) ; 
+        return true;
+    }
     //-------------------End Georg Solution ---------------------------------
 }
 
