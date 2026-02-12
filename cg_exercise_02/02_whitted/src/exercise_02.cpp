@@ -30,9 +30,9 @@ bool intersect_sphere(
     //-------------------Begin Georg Solution -------------------------------
     //intersection leads to need of solving at**2+bt+c=0 for t
     // with coefficients a, b, c being:
-    a = glm::dot(ray_direction, ray_direction);
-    b = 2 * glm::dot(ray_direction, ray_origin - center);
-    c = glm::dot(ray_origin - center, ray_origin - center) - pow(radius, 2); 
+    float a = glm::dot(ray_direction, ray_direction);
+    float b = 2 * glm::dot(ray_direction, ray_origin - center);
+    float c = glm::dot(ray_origin - center, ray_origin - center) - pow(radius, 2); 
     // analytically we get t= ( b +- sqrt( b**2 - 4ac )) / 2a
     float discriminant = b * b - 4*a*c;
 
@@ -83,25 +83,52 @@ glm::vec3 evaluate_phong(
 		// TODO: calculate the (normalized) direction to the light
 		const Light *light = light_uptr.get();
 		glm::vec3 L(0.0f, 1.0f, 0.0f);
+                // ----------------- Georg Begin Solution ------------------
+                L = (light->getPosition() - P) / glm::length(light->getPosition() - P);
+                float valid_light_angle = 1.0;
+                // ----------------- Georg end  Solution ------------------
+
 
 		float visibility = 1.f;
 		if (data.context.params.shadows) {
 			// TODO: check if light source is visible
+                        // ----------------- Georg Begin Solution ------------------
+                        visibility = visible(data, P, light->getPosition());
+                        // ----------------- Georg end  Solution ------------------
 		}
 
 		glm::vec3 diffuse(0.f);
 		if (data.context.params.diffuse) {
 			// TODO: compute diffuse component of phong model
+                        // ----------------- Georg Begin Solution ------------------
+                        float cos_theta = glm::length(L) / glm::length(N); //select N as hypothenuse
+                        valid_light_angle = (glm::length(cos_theta) > 0) ? 1.f : 0.f;
+
+                        diffuse = mat.k_d * std::max(0.f, cos_theta);
+
+                        // ----------------- Georg end  Solution ------------------
 		}
 
 		glm::vec3 specular(0.f);
 		if (data.context.params.specular) {
 			// TODO: compute specular component of phong model
+                        // ----------------- Georg Begin Solution ------------------
+                        glm::vec3 R = -L + glm::dot(L,N)*N; // Reflectance Vector R
+                        float cos_psi = glm::length(R) / glm::length(V); // select V as hypothenuse
+                        specular = mat.k_s * pow(std::max(0.f, cos_psi),mat.n);
+                        // ----------------- Georg end  Solution ------------------
 		}
 
 		glm::vec3 ambient = data.context.params.ambient ? mat.k_a : glm::vec3(0.0f);
 
 		// TODO: modify this and implement the phong model as specified on the exercise sheet
+                // ----------------- Georg Begin Solution ------------------
+                float squared_dist = pow(glm::length(P - L), 2); //later weaken the lighting acc. to squared distance to light
+                ambient = ambient / squared_dist;
+                contribution += light->getEmission(-L)*visibility*valid_light_angle / squared_dist * (diffuse + specular);
+                // ----------------- Georg end  Solution ------------------
+
+
 		contribution += ambient * light->getPower();
 	}
 
