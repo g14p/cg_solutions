@@ -76,6 +76,7 @@ glm::vec3 evaluate_phong(
 	cg_assert(std::fabs(glm::length(V) - 1.f) < EPSILON);
 
 	glm::vec3 contribution(0.f);
+        glm::vec3 fake_contribution(0.3,0.1,0.1); // georgs humble faker
 
 	// iterate over lights and sum up their contribution
 	for (auto& light_uptr : data.context.get_active_scene()->lights) 
@@ -102,7 +103,8 @@ glm::vec3 evaluate_phong(
 			// TODO: compute diffuse component of phong model
                         // ----------------- Georg Begin Solution ------------------
                         float cos_theta = glm::length(L) / glm::length(N); //select N as hypothenuse
-                        valid_light_angle = (glm::length(cos_theta) > 0) ? 1.f : 0.f;
+                        cos_theta = glm::dot(L,N);
+                        valid_light_angle = (cos_theta > 0) ? 1.f : 0.f;
 
                         diffuse = mat.k_d * std::max(0.f, cos_theta);
 
@@ -113,8 +115,10 @@ glm::vec3 evaluate_phong(
 		if (data.context.params.specular) {
 			// TODO: compute specular component of phong model
                         // ----------------- Georg Begin Solution ------------------
-                        glm::vec3 R = -L + glm::dot(L,N)*N; // Reflectance Vector R
+                        glm::vec3 R = -L + 2 * glm::dot(L,N)*N; // Reflectance Vector R
+                        R = R / glm::length(R); //normalize R
                         float cos_psi = glm::length(R) / glm::length(V); // select V as hypothenuse
+                        cos_psi = glm::dot(R, V);
                         specular = mat.k_s * pow(std::max(0.f, cos_psi),mat.n);
                         // ----------------- Georg end  Solution ------------------
 		}
@@ -123,7 +127,8 @@ glm::vec3 evaluate_phong(
 
 		// TODO: modify this and implement the phong model as specified on the exercise sheet
                 // ----------------- Georg Begin Solution ------------------
-                float squared_dist = pow(glm::length(P - L), 2); //later weaken the lighting acc. to squared distance to light
+                float squared_dist = pow(glm::length(P - light->getPosition()), 2); //later weaken the lighting acc. to squared distance to light
+                // squared_dist mit dot_product
                 ambient = ambient / squared_dist;
                 contribution += light->getEmission(-L)*visibility*valid_light_angle / squared_dist * (diffuse + specular);
                 // ----------------- Georg end  Solution ------------------
@@ -131,7 +136,7 @@ glm::vec3 evaluate_phong(
 
 		contribution += ambient * light->getPower();
 	}
-
+        
 	return contribution;
 }
 
