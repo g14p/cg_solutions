@@ -15,20 +15,10 @@
 void draw_triangles(
 	std::vector<glm::vec3> const& vertices,
 	std::vector<glm::vec3> const& colors)
-{	
+{
 	cg_assert(vertices.size() == colors.size());
 	cg_assert(vertices.size() % 3 == 0);
-	// Note: Everything here is executed repeatedly
-		// My code
-	glm::vec3 blue(0.0, 0.0, 1.0);
-	glm::vec3 pos_blue(1.0,1.0,0.0);
-	glBegin(GL_TRIANGLES);
-	for(long unsigned int i = 0; i < vertices.size(); i++){
-		glColor3fv(&(colors[i])[0]);
-		glVertex3fv(&(vertices[i])[0]);
-	}
-		// my code end
-	glEnd();
+
 }
 
 /*
@@ -45,53 +35,34 @@ void draw_triangles(
  *
  * An example for N = 3:
  *
- *	 ^
- *	 |	----------
- *	 |	|\ |\ |\ |
- *	 |	| \| \| \|
- *	 |	----------
- *	 |	|\ |\ |\ |
- * y |	| \| \| \|
- *	 |	----------
- *	 |	|\ |\ |\ |
- *	 |	| \| \| \|
- *	 |	----------
- *	 |
- *	 |-------------->
- *			x
+ *   ^
+ *   |  ----------
+ *   |  |\ |\ |\ |
+ *   |  | \| \| \|
+ *   |  ----------
+ *   |  |\ |\ |\ |
+ * y |  | \| \| \|
+ *   |  ----------
+ *   |  |\ |\ |\ |
+ *   |  | \| \| \|
+ *   |  ----------
+ *   |
+ *   |-------------->
+ *          x
  *
  */
 void generate_grid(
 	std::uint32_t N,
-	std::vector<glm::vec3>* vertices, // all vertices
-	std::vector<glm::uvec3>* indices) // define all triangles of the grid as list of 3 idxs each.
+	std::vector<glm::vec3>* vertices,
+	std::vector<glm::uvec3>* indices)
 {
 	cg_assert(N >= 1);
 	cg_assert(vertices);
 	cg_assert(indices);
-	// Remove all elem's from vectors which are then destroyed
+
 	vertices->clear();
 	indices->clear();
 
-		// Phoebes code begin ---------------------------------------------------
-		//create the vertices
-	for (long long i = 0; i <= N; i++) { //y
-		for (long long j = 0; j <= N; j++) { //x
-			vertices->push_back(glm::vec3(((float)j)/N, ((float)i)/N, 0));
-		}
-
-	}
-
-	//assign indices
-	for (long long i = 0; i < N; i++) {//lower row
-		for (long long j = 0; j < N; j++) {//column index
-			uint64_t XLowerRow = i*(N+1);
-			uint64_t XUpperRow = (i+1)*(N+1);
-			indices->push_back(glm::uvec3(XLowerRow+j, XLowerRow+j+1, XUpperRow+j));
-			indices->push_back(glm::uvec3(XLowerRow+j+1, XUpperRow+j+1, XUpperRow+j));
-		}
-	}
-	
 }
 
 /*
@@ -102,25 +73,12 @@ void generate_grid(
  * the triangles, you need to disable the client states again.
  */
 void draw_indexed_triangles(
-	std::vector<glm::vec3>	const& vertices,
-	std::vector<glm::vec3>	const& colors,
+	std::vector<glm::vec3>  const& vertices,
+	std::vector<glm::vec3>  const& colors,
 	std::vector<glm::uvec3> const& indices)
 {
 	cg_assert(vertices.size() == colors.size());
-	// The actual drawing happens here..
-	glEnableClientState(GL_VERTEX_ARRAY);
-	glEnableClientState(GL_COLOR_ARRAY);
 
-	glVertexPointer(3, GL_FLOAT, 0, vertices.data());
-	glColorPointer(3,GL_FLOAT, 0, colors.data());
-
-	glDrawElements(
-			GL_TRIANGLES, indices.size() * 3, 
-			GL_UNSIGNED_INT, indices.data() 
-	);
-	
-	glDisableClientState(GL_VERTEX_ARRAY);
-	glDisableClientState(GL_COLOR_ARRAY);
 }
 
 /*
@@ -136,14 +94,14 @@ void draw_indexed_triangles(
  *
  * An example for N = 3:
  *
- *	 ^
- *	 |	----------
- *	 |	| /| /| /|
- * y |	|/ |/ |/ |
- *	 |	----------
- *	 |
- *	 |-------------->
- *			 x
+ *   ^
+ *   |  ----------
+ *   |  | /| /| /|
+ * y |  |/ |/ |/ |
+ *   |  ----------
+ *   |
+ *   |-------------->
+ *           x
  *
  */
 void generate_strip(
@@ -154,17 +112,8 @@ void generate_strip(
 	cg_assert(vertices);
 
 	vertices->clear();
-	// Georg Code ----------------------------
-	vertices->push_back(glm::vec3(0.0, 1.0, 0.0));
-	for (long i = 0; i < N; i++) { 
-		vertices->push_back(glm::vec3(((float)i)/N, 0.0 , 0));
-		vertices->push_back(glm::vec3(((float)(i+1))/N, 1.0 , 0));
-	}
-	vertices->push_back(glm::vec3(1.0, 0.0, 0.0));
-	// Georg Code End -------------------------
+
 }
-
-
 
 /*
  * Draw the given vertices as a triangle strip.
@@ -175,16 +124,6 @@ void draw_triangle_strip(
 	std::vector<glm::vec3> const& colors)
 {
 	cg_assert(vertices.size() == colors.size());
-	// Georg Code Start --------------------------
-	glBegin(GL_TRIANGLE_STRIP);
-
-	for(long i = 0; i < vertices.size(); i++){
-		glColor3fv(&(colors[i])[0]);
-		glVertex3fv(&(vertices[i])[0]);
-	}
-	
-	glEnd();
-	// Georg Code End --------------------------
 
 }
 
@@ -193,9 +132,9 @@ void draw_triangle_strip(
  * using trapezoidal integration.
  *
  * The function is given at points
- *	   x[0], ..., x[N]
+ *     x[0], ..., x[N]
  * and its corresponding values are
- *	   y[0], ..., y[N]
+ *     y[0], ..., y[N]
  */
 float integrate_trapezoidal_student(
 	std::vector<float> const& x,
@@ -203,21 +142,8 @@ float integrate_trapezoidal_student(
 {
 	cg_assert(x.size() == y.size());
 	cg_assert(x.size() > 1);
-	
-	float result = 0.f;
-	int n = x.size();
-	float a = x[0];
-	float b = x[n-1];
-	float h = (b - a) / n; 
-	float fb = y[n-1];
-	float fa = y[0]; 
-	for (long int i = 0; i < n-1; i++){
-		float trapez = y[i+1] + 0.5 * h * (fb - fa) ;
-		result += trapez; 
-	}
-	result = h * result;
-	std::cout << result << "was result of trapez integration" << std::endl;
-	return result;
+
+	return 0.f;
 }
 
 /*
@@ -226,9 +152,9 @@ float integrate_trapezoidal_student(
  *
  * The color matching functions and the wavelengths
  * for which they are given can be found in
- *	   cglib/colors/cmf.h
+ *     cglib/colors/cmf.h
  * and
- *	   cglib/src/colors/cmf.cpp
+ *     cglib/src/colors/cmf.cpp
  *
  * The wavelengths corresponding to the spectral values 
  * given in spectrum are defined in cmf::wavelengths
@@ -237,36 +163,6 @@ glm::vec3 spectrum_to_rgb(std::vector<float> const& spectrum)
 {
 	cg_assert(spectrum.size() == cmf::wavelengths.size());
 
-	// georg code --------------------
-	//std::vector<std::vector<float>> rgb_integrand; // structure: [ r1, g1, b1, ... , rN, gN, bN]
-	std::vector<float> r_integrand;
-	std::vector<float> g_integrand;
-	std::vector<float> b_integrand;
-	for( long unsigned int i = 0; i < spectrum.size(); i++){
-			//fill integrands
-			glm::vec3 xyz( cmf::x[i],  cmf::y[i],  cmf::z[i]); // 3-vec of floats
-			glm::vec3 rgb;
-			rgb = xyz;//convert::rgb_to_hsv(xyz);
-			/*
-			for (long unsigned int basecolor = 0; basecolor < 2; basecolor++)
-			{
-				rgb_integrand[basecolor].push_back(spectrum[i] * rgb[basecolor]);
-			}
-			*/
-			r_integrand.push_back(spectrum[i] * rgb.x);
-			g_integrand.push_back(spectrum[i] * rgb.y);
-			b_integrand.push_back(spectrum[i] * rgb.z);
-	}
-	std::cout << "Size of rgb integrand : "<<r_integrand.size();
-	std::cout << "Sizte of wavelen : "<<cmf::wavelengths.size() << std::endl;
-	
-	glm::vec3 color(
-			integrate_trapezoidal(cmf::wavelengths, r_integrand),
-			integrate_trapezoidal(cmf::wavelengths, g_integrand),
-			integrate_trapezoidal(cmf::wavelengths, b_integrand)
-	);
-
-	return convert::xyz_to_rgb(color);
-	// end georg ---------------------
+	return glm::vec3(0.f);
 }
 // CG_REVISION 42b7d49b5accd3095c8011943ba7d6c5e3a12b86
