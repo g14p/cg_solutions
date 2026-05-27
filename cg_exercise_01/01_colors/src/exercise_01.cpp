@@ -19,15 +19,13 @@ void draw_triangles(
 	cg_assert(vertices.size() == colors.size());
 	cg_assert(vertices.size() % 3 == 0);
 	// Note: Everything here is executed repeatedly
-		// My code
-	glm::vec3 blue(0.0, 0.0, 1.0);
-	glm::vec3 pos_blue(1.0,1.0,0.0);
+	// My code
 	glBegin(GL_TRIANGLES);
 	for(long unsigned int i = 0; i < vertices.size(); i++){
 		glColor3fv(&(colors[i])[0]);
 		glVertex3fv(&(vertices[i])[0]);
 	}
-		// my code end
+	// my code end
 	glEnd();
 }
 
@@ -73,8 +71,8 @@ void generate_grid(
 	vertices->clear();
 	indices->clear();
 
-		// Phoebes code begin ---------------------------------------------------
-		//create the vertices
+	// Phoebes code begin ---------------------------------------------------
+	//create the vertices
 	for (long long i = 0; i <= N; i++) { //y
 		for (long long j = 0; j <= N; j++) { //x
 			vertices->push_back(glm::vec3(((float)j)/N, ((float)i)/N, 0));
@@ -178,7 +176,7 @@ void draw_triangle_strip(
 	// Georg Code Start --------------------------
 	glBegin(GL_TRIANGLE_STRIP);
 
-	for(long i = 0; i < vertices.size(); i++){
+	for(long unsigned i = 0; i < vertices.size(); i++){
 		glColor3fv(&(colors[i])[0]);
 		glVertex3fv(&(vertices[i])[0]);
 	}
