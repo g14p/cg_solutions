@@ -30,24 +30,29 @@ bool intersect_sphere(
     //-------------------Begin Georg Solution -------------------------------
     //intersection leads to need of solving at**2+bt+c=0 for t
     // with coefficients a, b, c being:
-    float a = glm::dot(ray_direction, ray_direction);
-    float b = 2 * glm::dot(ray_direction, ray_origin - center);
-    float c = glm::dot(ray_origin - center, ray_origin - center) - pow(radius, 2); 
-    // analytically we get t= ( b +- sqrt( b**2 - 4ac )) / 2a
-    float discriminant = b * b - 4*a*c;
+    double a = glm::dot(ray_direction, ray_direction);
+    double b = 2 * glm::dot(ray_direction, ray_origin - center);
+    double c = glm::dot(ray_origin - center, ray_origin - center) - pow(radius, 2); 
+    //potentiall make synergies... TODO
+    // analytically we get t= ( -b +- sqrt( b**2 - 4ac )) / 2a
+    double discriminant = b * b - 4*a*c;
+    double eps = 1e-6;
 
-    if (discriminant < 0) return false; // squareroot is complex -> no intersection
-    else if (discriminant == 0) { // intersect in tangent style :)
+    if (discriminant < -eps ) return false; // squareroot is complex -> no intersection
+    else if (std::fabs(discriminant) < eps) { // intersect in tangent style :)
         *t = b / (2*a);
         return true;
     }
-    else{ //pierce the ball
+    else if (discriminant > eps) { //pierce the ball
         if (*t<0) return false; // we only consider halbgerade
         // case 1: squareroot counts negative --> ray shoots out of sphere --> t_small
         // case 2: squareroot counts positive --> ray shoots into sphere --> t_big
         // we prefer t_small for some reason. maybe the ray shoots to the user?!
         *t = (float)(-b  - sqrt(discriminant)) / (2 * a) ; 
         return true;
+    }
+    else{
+    std::cout<<"weird things happen in gondor"<<std::endl;
     }
     //-------------------End Georg Solution ---------------------------------
 }
@@ -85,7 +90,7 @@ glm::vec3 evaluate_phong(
 		const Light *light = light_uptr.get();
 		glm::vec3 L(0.0f, 1.0f, 0.0f);
                 // ----------------- Georg Begin Solution ------------------
-                L = (light->getPosition() - P) / glm::length(light->getPosition() - P);
+                L = -(light->getPosition() - P) / glm::length(light->getPosition() - P);
                 float valid_light_angle = 1.0;
                 // ----------------- Georg end  Solution ------------------
 
