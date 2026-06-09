@@ -82,7 +82,7 @@ glm::vec3 evaluate_phong(
                 
 		const Light *light = light_uptr.get();
 		glm::vec3 L(0.0f, 1.0f, 0.0f);
-                L = glm::normalize((P - light->getPosition()));
+                L = glm::normalize(light->getPosition() - P);
                 float valid_light_angle = 1.0; // this is not an angle and more of a float boolean
 
 
