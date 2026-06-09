@@ -78,36 +78,30 @@ glm::vec3 evaluate_phong(
 	// iterate over lights and sum up their contribution
 	for (auto& light_uptr : data.context.get_active_scene()->lights) 
 	{
-		// TODO: calculate the (normalized) direction to the light
-                
+                // calculate the (normalized) direction to the light
 		const Light *light = light_uptr.get();
 		glm::vec3 L(0.0f, 1.0f, 0.0f);
-                L = glm::normalize(light->getPosition() - P);
-                float valid_light_angle = 1.0; // this is not an angle and more of a float boolean
-
-
+                L = glm::normalize(light->getPosition() - P); 
+                float valid_light_angle = 1.0; // 1.0 if light angle is valid else 0.0
 		float visibility = 1.f;
 		if (data.context.params.shadows) {
-			// TODO: check if light source is visible 
+			// check if light source is visible 
                         visibility = visible(data, P, light->getPosition());
 		}
-
 		glm::vec3 diffuse(0.f);
 		if (data.context.params.diffuse) {
-			// TODO: compute diffuse component of phong model
+			// compute diffuse component of phong model
                         // ----------------- Georg Begin Solution ------------------
                         float cos_theta = glm::length(L) / glm::length(N); //select N as hypothenuse
                         cos_theta = glm::dot(L,N);
                         valid_light_angle = (cos_theta > 0) ? 1.f : 0.f;
-
                         diffuse = mat.k_d * std::max(0.f, cos_theta);
-
                         // ----------------- Georg end  Solution ------------------
 		}
 
 		glm::vec3 specular(0.f);
 		if (data.context.params.specular) {
-			// TODO: compute specular component of phong model
+			// compute specular component of phong model
                         // ----------------- Georg Begin Solution ------------------
                         glm::vec3 R = -L + 2 * glm::dot(L,N)*N; // Reflectance Vector R
                         R = glm::normalize(R);
@@ -127,28 +121,18 @@ glm::vec3 evaluate_phong(
 
 
 
-		// TODO: modify this and implement the phong model as specified on the exercise sheet
+		// implement the phong model as specified on the exercise sheet
                 // ----------------- Georg Begin Solution ------------------
                 float squared_dist_scalar  = pow(glm::length(P - light->getPosition()), 2); 
                 glm::vec3 squared_dist(squared_dist_scalar);
-
                 ambient = ambient / squared_dist;
 		contribution += ambient * light->getPower(); 
-                visibility = 1.0;
                 contribution += light->getPower()*visibility*valid_light_angle / squared_dist * diffuse;
                 contribution += light->getPower()*visibility*valid_light_angle / squared_dist * specular;
                 // ----------------- Georg end  Solution ------------------
 
 	}
-        
-        /*
-         * georg thinks ..
-
-        std::cout << "Coefficients: " <<mat.k_a.x << mat.k_a.y << mat.k_a.z << std::endl;
-        std::cout << "Coefficients: " <<mat.k_s.x << mat.k_s.y << mat.k_s.z << std::endl;
-        std::cout << "Coefficients: " <<mat.k_d.x << mat.k_d.y << mat.k_d.z << std::endl;
-         */
-	return contribution;
+       	return contribution;
 }
 
 glm::vec3 evaluate_reflection(
