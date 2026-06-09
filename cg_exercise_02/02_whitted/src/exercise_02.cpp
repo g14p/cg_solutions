@@ -1,3 +1,4 @@
+#include <bit>
 #include <cglib/rt/renderer.h>
 #include <cglib/rt/intersection_tests.h>
 #include <cglib/rt/raytracing_context.h>
@@ -7,6 +8,7 @@
 #include <cglib/rt/light.h>
 #include <cglib/rt/material.h>
 #include <cglib/rt/render_data.h>
+#include <glm/geometric.hpp>
 
 /*
  * TODO: implement a ray-sphere intersection test here.
@@ -25,8 +27,8 @@ bool intersect_sphere(
     float* t)                       // output parameter which contains distance to the hit point
 {
     cg_assert(t);
-	cg_assert(std::fabs(glm::length(ray_direction) - 1.f) < EPSILON);
-
+        cg_assert(std::fabs(glm::length(ray_direction) - 1.f) < EPSILON);
+        
     //-------------------Begin Georg Solution -------------------------------
     //intersection leads to need of solving at**2+bt+c=0 for t
     // with coefficients a, b, c being:
@@ -36,25 +38,16 @@ bool intersect_sphere(
     //potentiall make synergies... TODO
     // analytically we get t= ( -b +- sqrt( b**2 - 4ac )) / 2a
     double discriminant = b * b - 4*a*c;
-    double eps = 1e-6;
-
-    if (discriminant < -eps ) return false; // squareroot is complex -> no intersection
-    else if (std::fabs(discriminant) < eps) { // intersect in tangent style :)
-        *t = b / (2*a);
-        return true;
-    }
-    else if (discriminant > eps) { //pierce the ball
-        if (*t<0) return false; // we only consider halbgerade
-        // case 1: squareroot counts negative --> ray shoots out of sphere --> t_small
-        // case 2: squareroot counts positive --> ray shoots into sphere --> t_big
-        // we prefer t_small for some reason. maybe the ray shoots to the user?!
-        *t = (float)(-b  - sqrt(discriminant)) / (2 * a) ; 
-        return true;
-    }
-    else{
-    std::cout<<"weird things happen in gondor"<<std::endl;
-    }
-    //-------------------End Georg Solution ---------------------------------
+    if (discriminant < 0.f ) return false; // squareroot is complex -> no intersection
+    //else we pierce the ball
+    if (discriminant == 0.f ) *t = -b / (2*a); // intersect in tangent style :)
+    *t = (float)(-b - sqrt(discriminant)) / (2 * a) ; 
+    if (*t<0) return false; // we only consider halbgerade
+    // case 1: squareroot counts negative --> ray shoots out of sphere --> t_small
+    // case 2: squareroot counts positive --> ray shoots into sphere --> t_big
+    // we prefer t_small for some reason. maybe the ray shoots to the user?!
+    return true;
+//-------------------End Georg Solution ---------------------------------
 }
 
 /*
@@ -81,26 +74,22 @@ glm::vec3 evaluate_phong(
 	cg_assert(std::fabs(glm::length(V) - 1.f) < EPSILON);
 
 	glm::vec3 contribution(0.f);
-        glm::vec3 fake_contribution(0.3,0.1,0.1); // georgs humble faker
 
 	// iterate over lights and sum up their contribution
 	for (auto& light_uptr : data.context.get_active_scene()->lights) 
 	{
 		// TODO: calculate the (normalized) direction to the light
+                
 		const Light *light = light_uptr.get();
 		glm::vec3 L(0.0f, 1.0f, 0.0f);
-                // ----------------- Georg Begin Solution ------------------
-                L = -(light->getPosition() - P) / glm::length(light->getPosition() - P);
-                float valid_light_angle = 1.0;
-                // ----------------- Georg end  Solution ------------------
+                L = glm::normalize((P - light->getPosition()));
+                float valid_light_angle = 1.0; // this is not an angle and more of a float boolean
 
 
 		float visibility = 1.f;
 		if (data.context.params.shadows) {
-			// TODO: check if light source is visible
-                        // ----------------- Georg Begin Solution ------------------
+			// TODO: check if light source is visible 
                         visibility = visible(data, P, light->getPosition());
-                        // ----------------- Georg end  Solution ------------------
 		}
 
 		glm::vec3 diffuse(0.f);
@@ -121,7 +110,7 @@ glm::vec3 evaluate_phong(
 			// TODO: compute specular component of phong model
                         // ----------------- Georg Begin Solution ------------------
                         glm::vec3 R = -L + 2 * glm::dot(L,N)*N; // Reflectance Vector R
-                        R = R / glm::length(R); //normalize R
+                        R = glm::normalize(R);
                         float cos_psi = glm::length(R) / glm::length(V); // select V as hypothenuse
                         cos_psi = glm::dot(R, V);
                         specular = mat.k_s * pow(std::max(0.f, cos_psi),mat.n);
@@ -130,18 +119,35 @@ glm::vec3 evaluate_phong(
 
 		glm::vec3 ambient = data.context.params.ambient ? mat.k_a : glm::vec3(0.0f);
 
+                // We have now three parts of contribution> 
+                //    * ambient
+                //    * specular
+                //    * diffuse
+                // Each one is to understand as an intensity of light - as light has three colors (here only three) - its a 3D vector!
+
+
+
 		// TODO: modify this and implement the phong model as specified on the exercise sheet
                 // ----------------- Georg Begin Solution ------------------
-                float squared_dist = pow(glm::length(P - light->getPosition()), 2); //later weaken the lighting acc. to squared distance to light
-                // squared_dist mit dot_product
+                float squared_dist_scalar  = pow(glm::length(P - light->getPosition()), 2); 
+                glm::vec3 squared_dist(squared_dist_scalar);
+
                 ambient = ambient / squared_dist;
-                contribution += light->getEmission(-L)*visibility*valid_light_angle / squared_dist * (diffuse + specular);
+		contribution += ambient * light->getPower(); 
+                visibility = 1.0;
+                contribution += light->getPower()*visibility*valid_light_angle / squared_dist * diffuse;
+                contribution += light->getPower()*visibility*valid_light_angle / squared_dist * specular;
                 // ----------------- Georg end  Solution ------------------
 
-
-		contribution += ambient * light->getPower();
 	}
         
+        /*
+         * georg thinks ..
+
+        std::cout << "Coefficients: " <<mat.k_a.x << mat.k_a.y << mat.k_a.z << std::endl;
+        std::cout << "Coefficients: " <<mat.k_s.x << mat.k_s.y << mat.k_s.z << std::endl;
+        std::cout << "Coefficients: " <<mat.k_d.x << mat.k_d.y << mat.k_d.z << std::endl;
+         */
 	return contribution;
 }
 
