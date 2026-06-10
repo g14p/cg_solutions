@@ -60,7 +60,10 @@ glm::vec3 SpotLight::getEmission(
 	cg_assert(std::fabs(glm::length(omega) - 1.f) < EPSILON);
  
 	// TODO: implement a spotlight emitter as specified on the exercise sheet
-	return glm::vec3(0.f);
+        //Begin Georg Solution ----------------------------------------
+        glm::vec3 emission_on_omega = getPower() * (falloff + 2) * std::pow(std::max(0.f, glm::dot(omega, direction)),falloff);
+	return emission_on_omega;
+        //End Georg Solution ----------------------------------------
 }
 
 glm::vec3 evaluate_phong(
@@ -82,9 +85,11 @@ glm::vec3 evaluate_phong(
 		const Light *light = light_uptr.get();
 		glm::vec3 L(0.0f, 1.0f, 0.0f);
                 L = glm::normalize(light->getPosition() - P); 
-                float valid_light_angle = 1.0; // 1.0 if light angle is valid else 0.0
-		float visibility = 1.f;
-		if (data.context.params.shadows) {
+                // ignore the influence of light that doesnt come from a 'upper hemisphere' angle, called O in exercise :)
+                float valid_light_angle = 1.0; // updated later 
+                // ignore influence lights that are not visible on object, called S in exercise :-)
+                float visibility = 1.f; // updated later 
+                if (data.context.params.shadows) {
 			// check if light source is visible 
                         visibility = visible(data, P, light->getPosition());
 		}
@@ -127,8 +132,8 @@ glm::vec3 evaluate_phong(
                 glm::vec3 squared_dist(squared_dist_scalar);
                 ambient = ambient / squared_dist;
 		contribution += ambient * light->getPower(); 
-                contribution += light->getPower()*visibility*valid_light_angle / squared_dist * diffuse;
-                contribution += light->getPower()*visibility*valid_light_angle / squared_dist * specular;
+                contribution += light->getEmission(-L)*visibility*valid_light_angle / squared_dist * diffuse;
+                contribution += light->getEmission(-L)*visibility*valid_light_angle / squared_dist * specular;
                 // ----------------- Georg end  Solution ------------------
 
 	}
