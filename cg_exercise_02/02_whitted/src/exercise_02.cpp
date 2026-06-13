@@ -34,13 +34,12 @@ bool intersect_sphere(
     // with coefficients a, b, c being:
     double a = glm::dot(ray_direction, ray_direction);
     double b = 2 * glm::dot(ray_direction, ray_origin - center);
-    double c = glm::dot(ray_origin - center, ray_origin - center) - pow(radius, 2); 
+    double c = glm::dot(ray_origin - center, ray_origin - center) - std::pow(radius, 2); 
     //potentiall make synergies... TODO
     // analytically we get t= ( -b +- sqrt( b**2 - 4ac )) / 2a
     double discriminant = b * b - 4*a*c;
-    if (discriminant < 0.f ) return false; // squareroot is complex -> no intersection
-    //else we pierce the ball
-    if (discriminant == 0.f ) *t = -b / (2*a); // intersect in tangent style :)
+    if (discriminant < 0.0) return false; // squareroot definitly complex -> no intersection
+    //else we pierce the ball (neglect assume intersect in tangent style and assume two intersections :)
     *t = (float)(-b - sqrt(discriminant)) / (2 * a) ; 
     if (*t<0) return false; // we only consider halbgerade
     // case 1: squareroot counts negative --> ray shoots out of sphere --> t_small
@@ -61,8 +60,7 @@ glm::vec3 SpotLight::getEmission(
  
 	// TODO: implement a spotlight emitter as specified on the exercise sheet
         //Begin Georg Solution ----------------------------------------
-        glm::vec3 emission_on_omega = getPower() * (falloff + 2) * std::pow(std::max(0.f, glm::dot(omega, direction)),falloff);
-	return emission_on_omega;
+	return getPower() * (falloff + 2) * std::pow(std::max(0.f, glm::dot(omega, direction)),falloff);
         //End Georg Solution ----------------------------------------
 }
 
@@ -98,8 +96,8 @@ glm::vec3 evaluate_phong(
 			// compute diffuse component of phong model
                         // ----------------- Georg Begin Solution ------------------
                         float cos_theta = glm::length(L) / glm::length(N); //select N as hypothenuse
-                        cos_theta = glm::dot(L,N);
-                        valid_light_angle = (cos_theta > 0) ? 1.f : 0.f;
+                        cos_theta = glm::dot(N,L);
+                        valid_light_angle = (cos_theta > 0.f) ? 1.f : 0.f;
                         diffuse = mat.k_d * std::max(0.f, cos_theta);
                         // ----------------- Georg end  Solution ------------------
 		}
