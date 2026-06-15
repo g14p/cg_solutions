@@ -8,6 +8,8 @@
 #include <cglib/rt/light.h>
 #include <cglib/rt/material.h>
 #include <cglib/rt/render_data.h>
+#include <glm/detail/qualifier.hpp>
+#include <glm/detail/type_vec.hpp>
 #include <glm/geometric.hpp>
 
 /*
@@ -221,7 +223,12 @@ glm::vec3 evaluate_reflection(
 	glm::vec3 const& V)			// view vector (already normalized)
 {
 	// TODO: calculate reflective contribution by constructing and shooting a reflection ray.
-	return glm::vec3(0.f);
+        float cos_theta = glm::dot(V, N);
+        glm::vec3 R = 2.f * N - V;
+        Ray ray(P,R); 
+        glm::vec3 contribution = trace_recursive(data, ray, depth);
+
+	return contribution;
 }
 
 glm::vec3 evaluate_transmission(
