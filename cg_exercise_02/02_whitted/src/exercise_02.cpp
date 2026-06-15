@@ -26,6 +26,9 @@ bool intersect_sphere(
     float radius,                   // radius of the sphere
     float* t)                       // output parameter which contains distance to the hit point
 {
+    
+/*
+
     cg_assert(t);
         cg_assert(std::fabs(glm::length(ray_direction) - 1.f) < EPSILON);
         
@@ -47,8 +50,8 @@ bool intersect_sphere(
     // case 2: squareroot counts positive --> ray shoots into sphere --> t_big
     // we prefer t_small for some reason. maybe the ray shoots to the user?!
     return true;
-//*///-------------------End Georg Solution ---------------------------------
-/*
+//-------------------End Georg Solution ---------------------------------
+*/
     cg_assert(t);
 
     const glm::vec3 e_c = ray_origin - center;
@@ -77,7 +80,7 @@ bool intersect_sphere(
         }
     }
     return false;
-*/
+//*/
 }
 
 /*
@@ -102,6 +105,7 @@ glm::vec3 evaluate_phong(
 	glm::vec3 const& N,			// normal at the position (already normalized)
 	glm::vec3 const& V)			// view vector (already normalized)
 {
+    /*
 	cg_assert(std::fabs(glm::length(N) - 1.f) < EPSILON);
 	cg_assert(std::fabs(glm::length(V) - 1.f) < EPSILON);
 
@@ -164,6 +168,50 @@ glm::vec3 evaluate_phong(
 
 	}
        	return contribution;
+        */
+	cg_assert(std::fabs(glm::length(N) - 1.f) < EPSILON);
+	cg_assert(std::fabs(glm::length(V) - 1.f) < EPSILON);
+
+	glm::vec3 contribution(0.f);
+	// iterate over lights and sum up their contribution
+	for (auto& light : data.context.get_active_scene()->lights) {
+		// TODO: calculate the (normalized) direction to the light
+		const glm::vec3 L = glm::normalize(light->getPosition() - P);
+
+		float visibility = 1.f;
+		if (data.context.params.shadows) {
+			// TODO: check if light source is visible
+			if (!visible(data, P, light->getPosition())) {
+				visibility = 0.f;
+			}
+		}
+
+		glm::vec3 diffuse(0.f);
+		if (data.context.params.diffuse) {
+			// TODO: compute diffuse component of phong model
+			if (visibility > 0.f) {
+				diffuse = std::max(0.f, glm::dot(N, L)) * mat.k_d;
+			}
+		}
+
+		glm::vec3 specular(0.f);
+		if (data.context.params.specular) {
+			// TODO: compute specular component of phong model
+			if ((visibility > 0.f) && (glm::dot(L, N) > 0.f)) {
+				const glm::vec3 R = reflect(L, N);
+				specular = std::pow(std::max(0.f, glm::dot(R, V)), mat.n) * mat.k_s;
+			}
+		}
+
+		glm::vec3 ambient = data.context.params.ambient ? mat.k_a : glm::vec3(0.0f);
+
+		// TODO: modify this and implement the phong model as specified on the exercise sheet
+		const float dist = glm::length(light->getPosition() - P);
+		contribution += (visibility * (diffuse + specular) + ambient) * light->getEmission(-L) / (dist*dist);
+	}
+
+	return contribution;
+
 }
 
 glm::vec3 evaluate_reflection(
