@@ -41,12 +41,43 @@ bool intersect_sphere(
     if (discriminant < 0.0) return false; // squareroot definitly complex -> no intersection
     //else we pierce the ball (neglect assume intersect in tangent style and assume two intersections :)
     *t = (float)(-b - sqrt(discriminant)) / (2 * a) ; 
-    if (*t<0) return false; // we only consider halbgerade
+    if (*t<0.f) return false;
+    // we only consider halbgerade
     // case 1: squareroot counts negative --> ray shoots out of sphere --> t_small
     // case 2: squareroot counts positive --> ray shoots into sphere --> t_big
     // we prefer t_small for some reason. maybe the ray shoots to the user?!
     return true;
-//-------------------End Georg Solution ---------------------------------
+//*///-------------------End Georg Solution ---------------------------------
+/*
+    cg_assert(t);
+
+    const glm::vec3 e_c = ray_origin - center;
+    const float c = glm::dot(e_c, e_c) - radius * radius;
+    const float b = glm::dot(ray_direction, e_c);
+    const float a = glm::dot(ray_direction, ray_direction);
+
+    const float d = b * b - a * c;
+    if (d >= 0.0f)
+    {
+        const float e = sqrt(d);
+        const float f = 1.0f / a;
+        const float t1 = (-b + e) * f;
+        const float t2 = (-b - e) * f;
+
+        const bool t1valid = t1 >= 0.0f;
+        const bool t2valid = t2 >= 0.0f;
+        *t = (t1valid && t2valid ? glm::min(t1, t2)
+            : (t1valid ? t1
+            : (t2valid ? t2 
+            : -1)));
+
+        if (*t >= 0)
+        {
+            return true;
+        }
+    }
+    return false;
+*/
 }
 
 /*
@@ -95,8 +126,7 @@ glm::vec3 evaluate_phong(
 		if (data.context.params.diffuse) {
 			// compute diffuse component of phong model
                         // ----------------- Georg Begin Solution ------------------
-                        float cos_theta = glm::length(L) / glm::length(N); //select N as hypothenuse
-                        cos_theta = glm::dot(N,L);
+                        float cos_theta = glm::dot(N,L);
                         valid_light_angle = (cos_theta > 0.f) ? 1.f : 0.f;
                         diffuse = mat.k_d * std::max(0.f, cos_theta);
                         // ----------------- Georg end  Solution ------------------
@@ -108,8 +138,7 @@ glm::vec3 evaluate_phong(
                         // ----------------- Georg Begin Solution ------------------
                         glm::vec3 R = -L + 2 * glm::dot(L,N)*N; // Reflectance Vector R
                         R = glm::normalize(R);
-                        float cos_psi = glm::length(R) / glm::length(V); // select V as hypothenuse
-                        cos_psi = glm::dot(R, V);
+                        float cos_psi = glm::dot(R, V);
                         specular = mat.k_s * pow(std::max(0.f, cos_psi),mat.n);
                         // ----------------- Georg end  Solution ------------------
 		}
@@ -126,10 +155,9 @@ glm::vec3 evaluate_phong(
 
 		// implement the phong model as specified on the exercise sheet
                 // ----------------- Georg Begin Solution ------------------
-                float squared_dist_scalar  = pow(glm::length(P - light->getPosition()), 2); 
-                glm::vec3 squared_dist(squared_dist_scalar);
-                ambient = ambient / squared_dist;
-		contribution += ambient * light->getPower(); 
+                float dist = glm::length(P - light->getPosition()); 
+                float squared_dist = dist * dist; 
+		contribution += light->getPower() / squared_dist * ambient; 
                 contribution += light->getEmission(-L)*visibility*valid_light_angle / squared_dist * diffuse;
                 contribution += light->getEmission(-L)*visibility*valid_light_angle / squared_dist * specular;
                 // ----------------- Georg end  Solution ------------------
