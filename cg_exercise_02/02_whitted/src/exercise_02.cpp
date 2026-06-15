@@ -27,8 +27,6 @@ bool intersect_sphere(
     float* t)                       // output parameter which contains distance to the hit point
 {
     
-/*
-
     cg_assert(t);
         cg_assert(std::fabs(glm::length(ray_direction) - 1.f) < EPSILON);
         
@@ -51,7 +49,7 @@ bool intersect_sphere(
     // we prefer t_small for some reason. maybe the ray shoots to the user?!
     return true;
 //-------------------End Georg Solution ---------------------------------
-*/
+/*
     cg_assert(t);
 
     const glm::vec3 e_c = ray_origin - center;
@@ -80,7 +78,7 @@ bool intersect_sphere(
         }
     }
     return false;
-//*/
+*/
 }
 
 /*
@@ -105,7 +103,7 @@ glm::vec3 evaluate_phong(
 	glm::vec3 const& N,			// normal at the position (already normalized)
 	glm::vec3 const& V)			// view vector (already normalized)
 {
-    /*
+    
 	cg_assert(std::fabs(glm::length(N) - 1.f) < EPSILON);
 	cg_assert(std::fabs(glm::length(V) - 1.f) < EPSILON);
 
@@ -168,7 +166,7 @@ glm::vec3 evaluate_phong(
 
 	}
        	return contribution;
-        */
+        /*
 	cg_assert(std::fabs(glm::length(N) - 1.f) < EPSILON);
 	cg_assert(std::fabs(glm::length(V) - 1.f) < EPSILON);
 
@@ -211,6 +209,7 @@ glm::vec3 evaluate_phong(
 	}
 
 	return contribution;
+        */
 
 }
 
