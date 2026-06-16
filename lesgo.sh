@@ -3,19 +3,36 @@
 # Author: Georg Pernice
 # Purpose: A set of bash functions to make easier the comparison of reference and results
 # Date : Looking forward to such things
-cd ~/git/cg_exercises/cg_exercise_02/02_whitted
-    #cd ~/git/cg_exercises/cg_exercise_03/03_path_tracing
 
-echo "Your call :) "
-echo "'showimages' the images" 
-echo "or 'update' to render them again"
-echo "or vim into the source code with 'v'"
-echo 'comparescene' to see the difference in red
+#cd ~/git/cg_exercises/cg_exercise_01/01_colors
+#cd ~/git/cg_exercises/cg_exercise_02/02_whitted
+#cd ~/git/cg_exercises/cg_exercise_03/03_path_tracing
+cd ~/git/cg_exercises/cg_exercise_04/04_textures
+
+ls assignment_references > /dev/null 
+if [[ $? -eq 0 ]]; 
+    then echo 
+    echo "Your call :) "
+    echo "'showimages' the images" 
+    echo "or 'update' to render them again"
+    echo "'comparescene' to see the difference in red .. or directly"
+    echo "if its the first time then run 'init-ycm' to initialize autocompletion for this exercise";
+    else echo No images available.; 
+fi
+echo "vim into the source code with 'v'"
 echo
 echo Last thing i did: 
 echo --------------------
 echo $(git log -n 1 --decorate=no | tail -n 1)
 echo Next time need to fix those artefacts appearing since b. I think they come from implementation of b.
+
+function init-ycm {
+    echo Initialize Ycm by generating compile_commands.json
+    sed -i "s/project (cg)/project(cg)\nset( CMAKE_EXPORT_COMPILE_COMMANDS ON ) # ONLY FOR YouCompleteMe/" CMakeLists.txt 
+    cmake .
+
+    
+}
 
 function update {
     ./cg --create-images ; 
@@ -49,5 +66,7 @@ function comparescene {
 
 }
 function v {
-    vim -p src/exercise_02.cpp ~/lesgo.sh .  ;
+    vim -p src/exercise_* ~/lesgo.sh .  ;
 }
+
+
