@@ -223,8 +223,7 @@ glm::vec3 evaluate_reflection(
 	glm::vec3 const& V)			// view vector (already normalized)
 {
 	// TODO: calculate reflective contribution by constructing and shooting a reflection ray.
-        float cos_theta = glm::dot(V, N);
-        glm::vec3 R = 2.f * N - V;
+        glm::vec3 R = reflect(V, N);
         Ray ray(P+EPSILON*R,R); 
         glm::vec3 contribution = trace_recursive(data, ray, depth);
 
