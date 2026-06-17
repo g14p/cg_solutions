@@ -224,7 +224,7 @@ glm::vec3 evaluate_reflection(
 {
 	// TODO: calculate reflective contribution by constructing and shooting a reflection ray.
         glm::vec3 R = reflect(V, N);
-        Ray ray(P+EPSILON*R,R); 
+        Ray ray(P+data.context.params.ray_epsilon*R,R); 
         glm::vec3 contribution = trace_recursive(data, ray, depth);
 
 	return contribution;
@@ -239,8 +239,17 @@ glm::vec3 evaluate_transmission(
 	float eta)					// the relative refraction index
 {
 	// TODO: calculate transmissive contribution by constructing and shooting a transmission ray.
+        // TODO: the rays point slightly off curently
+        glm::vec3 t(0.f);
 	glm::vec3 contribution(0.f);
-	return contribution;
+        
+        if (refract(V, N, eta, &t)){
+            // analogous to reflection
+            Ray ray(P+data.context.params.ray_epsilon*t,t); 
+            contribution = trace_recursive(data, ray, depth);
+        }
+        // if no refract we return zero
+        return contribution;
 }
 
 glm::vec3 handle_transmissive_material_single_ior(
