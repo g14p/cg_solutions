@@ -224,9 +224,11 @@ glm::vec3 evaluate_reflection(
 	glm::vec3 const& V)			// view vector (already normalized)
 {
 	// TODO: calculate reflective contribution by constructing and shooting a reflection ray.
+        glm::vec3 contribution(0.f);
+
         glm::vec3 R = reflect(V, N);
         Ray ray(P + data.context.params.ray_epsilon * R, R); 
-        glm::vec3 contribution = trace_recursive(data, ray, depth);
+        contribution = trace_recursive(data, ray, depth+1);
 
 	return contribution;
 }
@@ -247,7 +249,7 @@ glm::vec3 evaluate_transmission(
         if (refract(V, N, eta, &t)){
             // analogous to reflection
             Ray ray(P + 10.f * data.context.params.ray_epsilon*t,t); 
-            contribution = trace_recursive(data, ray, depth);
+            contribution = trace_recursive(data, ray, depth+1);
         }
         // if no refract we return zero
         return contribution;
@@ -263,7 +265,11 @@ glm::vec3 handle_transmissive_material_single_ior(
 {
 	if (data.context.params.fresnel) {
 		// TODO: replace with proper fresnel handling.
-		return evaluate_transmission(data, depth, P, N, V, eta);
+                glm::vec3 transmitted =  evaluate_transmission(data, depth, P, N, V, eta);
+                glm::vec3 reflected = evaluate_reflection(data, depth, P, N, V);
+                float F=fresnel(V, N, eta);
+                return  (1-F) * transmitted + F * reflected;
+                
 	}
 	else {
 		// just regular transmission
