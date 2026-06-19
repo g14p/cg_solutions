@@ -28,7 +28,6 @@ bool intersect_sphere(
     float radius,                   // radius of the sphere
     float* t)                       // output parameter which contains distance to the hit point
 {
-    
     cg_assert(t);
     cg_assert(std::fabs(glm::length(ray_direction) - 1.f) < EPSILON);
         
@@ -37,24 +36,20 @@ bool intersect_sphere(
     // with coefficients a, b, c being:
     float b = 2 * glm::dot(ray_direction, ray_origin - center);
     float c = glm::dot(ray_origin - center, ray_origin - center) - std::pow(radius, 2); 
-    //potentiall make synergies... TODO
     // analytically we get t= ( -b +- sqrt( b**2 - 4ac )) / 2a
     float discriminant = b * b - 4*c;
     if (discriminant < 0.0) return false; // squareroot definitly complex -> no intersection
 
     //else we pierce the ball (neglect assume intersect in tangent style and assume two intersections :)
-    // we prefer t_small as the intersection that is closest to the camera blocks all others.
-    float t1 = (float)(-b - sqrt(discriminant)) / 2.f ; 
-    float t2 = (float)(-b + sqrt(discriminant)) / 2.f ; 
-    if (t2 * t1 < 0.f)
-        // if both solutions differ in sign choose the positive (visible) one
-        *t = ( t1 > 0.f) ? t2 : t1; 
-    else {
-        // if both carry same sign choose smaller one - later we throw away negative-t-solutions
-        *t = fmin( fabs(t1) , fabs(t2) );
-    }
-    // now throw away negative-t-solutions
-    if (*t<0.f) return false;
+    // we prefer t_small as the intersection that is closest to the camera blocks all others and must be positive to be visible.
+    float t1 =(-b - sqrt(discriminant)) * 0.5 ; 
+    float t2 =(-b + sqrt(discriminant)) * 0.5 ; 
+    if (t1 < 0.f && t2 < 0.f) *t = -1.f;
+    else if (t1 > 0.f && t2 > 0.f) *t = fmin(t1,t2);
+    else if (t1 > 0.f) *t = t1; 
+    else if (t2 > 0.f) *t = t2; 
+    else *t = -1.f;
+    if (*t < 0.f) return false;
     return true;
 //-------------------End Georg Solution ---------------------------------
 /*
@@ -230,7 +225,7 @@ glm::vec3 evaluate_reflection(
 {
 	// TODO: calculate reflective contribution by constructing and shooting a reflection ray.
         glm::vec3 R = reflect(V, N);
-        Ray ray(P + 10.f * data.context.params.ray_epsilon*R,R); 
+        Ray ray(P + data.context.params.ray_epsilon * R, R); 
         glm::vec3 contribution = trace_recursive(data, ray, depth);
 
 	return contribution;
