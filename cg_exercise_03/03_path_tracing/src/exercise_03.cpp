@@ -1,3 +1,4 @@
+#include <bit>
 #include <cglib/rt/renderer.h>
 #include <cglib/rt/intersection_tests.h>
 #include <cglib/rt/raytracing_context.h>
@@ -8,7 +9,8 @@
 #include <cglib/rt/material.h>
 #include <cglib/rt/render_data.h>
 #include <cglib/core/thread_local_data.h>
-
+#include <glm/geometric.hpp>
+#include <limits>
 /*
  * Creates a random sample on a unit sphere
  *
@@ -21,7 +23,14 @@ uniform_sample_sphere(float u1, float u2)
 {
 	// TODO AmbientOcclusion/IndirectIllumination: 
 	// implement uniform sampling on a unit sphere
-	return glm::vec3(0.0);
+        float h = -1.f + 2*u1;
+        float r = sqrt(1.f-h*h); 
+	glm::vec3 d = glm::vec3(
+                r*cos(2.f * std::numbers::pi * u2 ),
+                h,
+                r*cos(2.f * std::numbers::pi * u2 )
+        );
+        return glm::vec3(1.f);
 }
 
 /*
@@ -39,7 +48,14 @@ uniform_sample_hemisphere(RenderData& data, glm::vec3 const& N)
 	// implement uniform sampling on a unit hemisphere.
 	// data.tld->rand() creates uniform [0, 1] random numbers
 	// TIP: use uniform_sample_sphere 
-	return glm::vec3(0.0);
+        float u1 = data.tld->rand();
+        float u2 = data.tld->rand();
+
+        glm::vec3 d = glm::vec3(-1.f);
+        while (d.y < 0.f) {
+            d = uniform_sample_sphere(u1, u2);
+        }
+	return d;
 }
 
 float evaluate_ambient_occlusion(
@@ -51,7 +67,15 @@ float evaluate_ambient_occlusion(
 	float ambient_occlusion = 0.f;
 	for (int i = 0; i < data.context.params.ao_rays; ++i)
 	{
+            glm::vec3 direction = uniform_sample_hemisphere(data, N);
+            direction = glm::normalize(direction);
+            float dist = max_unobstructed_distance(data, P, direction, N); 
+            float visibility = (dist == std::numeric_limits<float>::max()) ? 1.f
+               : 1.f / (dist * dist);
+            ambient_occlusion += visibility * glm::dot(N, direction);
+
 	}
+        ambient_occlusion *= 2.f / data.context.params.ao_rays;
 
 	return ambient_occlusion;
 }

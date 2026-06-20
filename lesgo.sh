@@ -1,13 +1,17 @@
 #!/bin/bash
 
 # Author: Georg Pernice
-# Purpose: A set of bash functions to make easier the comparison of reference and results
+# Purpose:      A set of bash functions to make easier the comparison of reference and results.
+#               Assumes, you are using a terminal workflow with following programs:
+#                       - vim
+#                       - ycm plugin for vim
+#                       - feh to view images
 # Date : Looking forward to such things
 
 #cd ~/git/cg_exercises/cg_exercise_01/01_colors
 #cd ~/git/cg_exercises/cg_exercise_02/02_whitted
-#cd ~/git/cg_exercises/cg_exercise_03/03_path_tracing
-cd ~/git/cg_exercises/cg_exercise_04/04_textures
+cd ~/git/cg_exercises/cg_exercise_03/03_path_tracing
+#cd ~/git/cg_exercises/cg_exercise_04/04_textures
 
 ls assignment_references > /dev/null 
 if [[ $? -eq 0 ]]; 
@@ -16,7 +20,7 @@ if [[ $? -eq 0 ]];
     echo "'showimages' the images" 
     echo "or 'update' to render them again"
     echo "'comparescene' to see the difference in red .. or directly"
-    echo "if its the first time then run 'init-ycm' to initialize autocompletion for this exercise";
+    echo "run 'init-ycm' if its the first time to initialize autocompletion for this exercise";
     else echo No images available.; 
 fi
 echo "vim into the source code with 'v'"
@@ -24,7 +28,9 @@ echo
 echo Last thing i did: 
 echo --------------------
 echo $(git log -n 1 --decorate=no | tail -n 1)
-echo Next time need to fix those artefacts appearing since b. I think they come from implementation of b.
+echo Some time may need to 
+echo .  .  . fix those artefacts by perfecting kugelschnitt
+
 
 function init-ycm {
     echo Initialize Ycm by generating compile_commands.json
