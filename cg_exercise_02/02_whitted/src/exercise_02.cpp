@@ -288,6 +288,10 @@ glm::vec3 handle_transmissive_material(
 	if (data.context.params.dispersion && !(eta_of_channel[0] == eta_of_channel[1] && eta_of_channel[0] == eta_of_channel[2])) {
 		// TODO: split ray into 3 rays (one for each color channel) and implement dispersion here
 		glm::vec3 contribution(0.f);
+                glm::vec3 rgb[3] =  { glm::vec3(1.f,0.f,0.f),  glm::vec3(0.f,1.f,0.f),  glm::vec3(0.f,0.f,1.f)};  
+                for (int i = 0; i < 3; i++) {
+                    contribution += rgb[i] * handle_transmissive_material_single_ior(data, depth, P, N, V, eta_of_channel[i]);
+                }
 		return contribution;
 	}
 	else {
