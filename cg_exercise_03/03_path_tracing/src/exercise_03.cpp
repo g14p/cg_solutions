@@ -23,14 +23,14 @@ uniform_sample_sphere(float u1, float u2)
 {
 	// TODO AmbientOcclusion/IndirectIllumination: 
 	// implement uniform sampling on a unit sphere
-        float h = -1.f + 2*u1;
+        float h = 1.f - 2*u1;
         float r = sqrt(1.f-h*h); 
 	glm::vec3 d = glm::vec3(
                 r*cos(2.f * std::numbers::pi * u2 ),
                 h,
-                r*cos(2.f * std::numbers::pi * u2 )
+                r*sin(2.f * std::numbers::pi * u2 )
         );
-        return glm::vec3(1.f);
+        return glm::normalize(d);
 }
 
 /*
@@ -51,11 +51,14 @@ uniform_sample_hemisphere(RenderData& data, glm::vec3 const& N)
         float u1 = data.tld->rand();
         float u2 = data.tld->rand();
 
-        glm::vec3 d = glm::vec3(-1.f);
-        while (d.y < 0.f) {
+        glm::vec3 d;
+        do {
             d = uniform_sample_sphere(u1, u2);
         }
-	return d;
+        while (
+                false && (glm::dot(N, d) > 0.f) // valid d are 'more parallel then orthogonal' to surface normal N ;) 
+        );
+        return d;
 }
 
 float evaluate_ambient_occlusion(
@@ -70,8 +73,9 @@ float evaluate_ambient_occlusion(
             glm::vec3 direction = uniform_sample_hemisphere(data, N);
             direction = glm::normalize(direction);
             float dist = max_unobstructed_distance(data, P, direction, N); 
+            float c = 1.f / (data.context.params.half_ao_radius * data.context.params.half_ao_radius);
             float visibility = (dist == std::numeric_limits<float>::max()) ? 1.f
-               : 1.f / (dist * dist);
+               : 1 - 1.f / (1 + c * dist * dist);
             ambient_occlusion += visibility * glm::dot(N, direction);
 
 	}
