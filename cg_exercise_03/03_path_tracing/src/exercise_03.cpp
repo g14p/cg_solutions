@@ -9,6 +9,7 @@
 #include <cglib/rt/material.h>
 #include <cglib/rt/render_data.h>
 #include <cglib/core/thread_local_data.h>
+#include <cglib/core/assert.h>
 #include <glm/geometric.hpp>
 #include <limits>
 /*
@@ -48,16 +49,18 @@ uniform_sample_hemisphere(RenderData& data, glm::vec3 const& N)
 	// implement uniform sampling on a unit hemisphere.
 	// data.tld->rand() creates uniform [0, 1] random numbers
 	// TIP: use uniform_sample_sphere 
-        float u1 = data.tld->rand();
-        float u2 = data.tld->rand();
-
-        glm::vec3 d;
+        
+        cg_assert(1.f - glm::length(N) < EPSILON);
+        
+        glm::vec3 d = -N;
+        bool d_valid = false;
         do {
+            float u1 = data.tld->rand();
+            float u2 = data.tld->rand();
             d = uniform_sample_sphere(u1, u2);
-        }
-        while (
-                false && (glm::dot(N, d) > 0.f) // valid d are 'more parallel then orthogonal' to surface normal N ;) 
-        );
+            d_valid = glm::dot(N, d) > 0.f;
+        } // reselect d until if it is located on the wrong hemisphere (opposed to N) 
+        while (!d_valid);
         return d;
 }
 

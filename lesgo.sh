@@ -30,8 +30,7 @@ echo --------------------
 echo $(git log -n 1 --decorate=no | tail -n 1)
 echo Some time may need to 
 echo .  .  . fix those artefacts by perfecting kugelschnitt
-echo .  .  . check if ambient occlusion should not better be actually truethfully filter the rays according to correct scalar prod
-
+echo .  .  . do the next part of ex03 but before run the pixelchecker because their random func actuallz uses seed \(yeyy\) 
 
 function init-ycm {
     echo Initialize Ycm by generating compile_commands.json
