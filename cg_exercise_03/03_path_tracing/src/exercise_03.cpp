@@ -55,8 +55,8 @@ uniform_sample_hemisphere(RenderData& data, glm::vec3 const& N)
         glm::vec3 d = -N;
         bool d_valid = false;
         do {
-            float u1 = data.tld->rand();
             float u2 = data.tld->rand();
+            float u1 = data.tld->rand();
             d = uniform_sample_sphere(u1, u2);
             d_valid = glm::dot(N, d) > 0.f;
         } // reselect d until if it is located on the wrong hemisphere (opposed to N) 
@@ -74,7 +74,6 @@ float evaluate_ambient_occlusion(
 	for (int i = 0; i < data.context.params.ao_rays; ++i)
 	{
             glm::vec3 direction = uniform_sample_hemisphere(data, N);
-            direction = glm::normalize(direction);
             float dist = max_unobstructed_distance(data, P, direction, N); 
             float c = 1.f / (data.context.params.half_ao_radius * data.context.params.half_ao_radius);
             float visibility = (dist == std::numeric_limits<float>::max()) ? 1.f
@@ -136,7 +135,24 @@ glm::vec3 evaluate_illumination(
 	glm::vec3 indirect_illumination(0.f);
 	if (data.context.params.indirect)
 	{
-		// TODO IndirectIllumination: compute indirect illumination with russian roulette
+            // TODO IndirectIllumination: compute indirect illumination with russian roulette
+            for( int i = 0; i < data.context.params.indirect_rays; i++) {
+
+
+                for (auto& light : data.context.get_active_scene()->lights)
+		{
+                        glm::vec3 direction = uniform_sample_hemisphere(data, N);
+                        Ray ray(P, direction);
+                        //float cos_theta = glm::dot(N, direction); 
+			const glm::vec3 LP = light->getPosition();
+                        const glm::vec3 L = glm::normalize(LP - P);
+                        glm::vec3 brdf = evaluate_phong_BRDF(data, mat, L, N, V);
+                        indirect_illumination += brdf * trace_recursive(data, ray, depth);
+                }
+		indirect_illumination /= data.context.get_active_scene()->lights.size();
+
+           }
+            indirect_illumination *= 2.f / data.context.params.indirect_rays;
 	}
 
 	return direct_illumination + indirect_illumination;
