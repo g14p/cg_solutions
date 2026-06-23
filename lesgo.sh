@@ -10,8 +10,8 @@
 
 #cd ~/git/cg_exercises/cg_exercise_01/01_colors
 #cd ~/git/cg_exercises/cg_exercise_02/02_whitted
-cd ~/git/cg_exercises/cg_exercise_03/03_path_tracing
-#cd ~/git/cg_exercises/cg_exercise_04/04_textures
+#cd ~/git/cg_exercises/cg_exercise_03/03_path_tracing
+cd ~/git/cg_exercises/cg_exercise_04/04_textures
 
 ls assignment_references > /dev/null 
 if [[ $? -eq 0 ]]; 
@@ -31,6 +31,7 @@ echo $(git log -n 1 --decorate=no | tail -n 1)
 echo Some time may need to 
 echo .  .  . fix those artefacts by perfecting kugelschnitt
 echo .  .  . fix the pixelerrors in ex03 as their rand actuallz uses seed? but unsure if possible
+echo .  .  . fix in ex03 at least the cornellbox -- the reference has more wild pixels -- so update 1h and see if gets better
 
 function init-ycm {
     echo Initialize Ycm by generating compile_commands.json
