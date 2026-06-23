@@ -136,18 +136,33 @@ glm::vec3 evaluate_illumination(
 	if (data.context.params.indirect)
 	{
             // TODO IndirectIllumination: compute indirect illumination with russian roulette
+            
             for( int i = 0; i < data.context.params.indirect_rays; i++) {
-
+                
 
                 for (auto& light : data.context.get_active_scene()->lights)
 		{
+                        
                         glm::vec3 direction = uniform_sample_hemisphere(data, N);
                         Ray ray(P, direction);
                         //float cos_theta = glm::dot(N, direction); 
 			const glm::vec3 LP = light->getPosition();
                         const glm::vec3 L = glm::normalize(LP - P);
                         glm::vec3 brdf = evaluate_phong_BRDF(data, mat, L, N, V);
-                        indirect_illumination += brdf * trace_recursive(data, ray, depth);
+                        if (data.context.params.russian_roulette)
+                        {
+                            if (depth >= data.context.params.russian_roulette_depth_thresh)
+                            {
+                                bool ray_survives = data.tld->rand() <= data.context.params.russian_roulette_surv_prop; 
+                                if(ray_survives)
+                                    indirect_illumination += brdf * trace_recursive(data, ray, depth + 1);
+                            }
+                        }
+                        else {
+                                indirect_illumination += brdf * trace_recursive(data, ray, depth + 1);
+                        }
+                        //std::cout<<"depth is " << depth << std::endl;
+
                 }
 		indirect_illumination /= data.context.get_active_scene()->lights.size();
 
