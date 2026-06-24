@@ -192,7 +192,7 @@ evaluate_trilinear(glm::vec2 const& uv, glm::vec2 const& dudv) const
 glm::vec3 transform_direction(glm::mat4 const& transform, glm::vec3 const& d)
 {
         // TODO correct this
-	glm::vec4 t = transform * glm::vec4(d.x, d.y, d.y, 1.f);
+	glm::vec4 t = transform * glm::vec4(d.x, d.y, d.y, 0.f);
         glm::vec3 d_ = glm::vec3( t.x, t.y, t.z);
         return glm::normalize( d_ );
 }
@@ -203,9 +203,9 @@ glm::vec3 transform_direction(glm::mat4 const& transform, glm::vec3 const& d)
 glm::vec3 transform_position(glm::mat4 const& transform, glm::vec3 const& p)
 {
         // TODO correct this
-        glm::vec4 t = transform * glm::vec4(p.x, p.y, p.y, 0.f);
+        glm::vec4 t = transform * glm::vec4(p.x, p.y, p.y, 1.f);
         glm::vec3 p_ = glm::vec3( t.x, t.y, t.z);
-        return glm::normalize( p_ );
+        return p_;
 }
 
 /*
