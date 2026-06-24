@@ -32,8 +32,9 @@ evaluate_nearest(int level, glm::vec2 const& uv) const
 	cg_assert(mip_levels[level]);
 
 	// TODO: compute the st-coordinates for the given uv-coordinates and mipmap level
+        
 	int s = 0;
-	int t = 0;
+        int t = 0;
 
 	// get the value of pixel (s, t) of miplevel level
 	return get_texel(level, s, t);
@@ -190,7 +191,10 @@ evaluate_trilinear(glm::vec2 const& uv, glm::vec2 const& dudv) const
  */
 glm::vec3 transform_direction(glm::mat4 const& transform, glm::vec3 const& d)
 {
-	return d;
+        // TODO correct this
+	glm::vec4 t = transform * glm::vec4(d.x, d.y, d.y, 1.f);
+        glm::vec3 d_ = glm::vec3( t.x, t.y, t.z);
+        return glm::normalize( d_ );
 }
 
 /*
@@ -198,7 +202,10 @@ glm::vec3 transform_direction(glm::mat4 const& transform, glm::vec3 const& d)
  */
 glm::vec3 transform_position(glm::mat4 const& transform, glm::vec3 const& p)
 {
-	return p;
+        // TODO correct this
+        glm::vec4 t = transform * glm::vec4(p.x, p.y, p.y, 0.f);
+        glm::vec3 p_ = glm::vec3( t.x, t.y, t.z);
+        return glm::normalize( p_ );
 }
 
 /*
