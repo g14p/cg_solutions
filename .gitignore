@@ -1,0 +1,10 @@
+
+*
+!default.nix
+!cg_exercise01/01_colors/src/exercise_01.cpp
+!cg_exercise02/02_whitted/src/exercise_02.cpp
+!cg_exercise03/03_path_tracing/src/exercise_03.cpp
+!cg_exercise04/04_textures/src/exercise_04.cpp
+!cg_exercise05/05_bvh/src/exercise_05.cpp
+!cg_exercise06/06_shaders/src/exercise_06.cpp
+!cg_exercise07/07_shadow_mapping/src/exercise_07.cpp
