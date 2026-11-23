@@ -22,6 +22,8 @@ pkgs.mkShell {
     libXi
     libXinerama # Adding this as well, as GLFW usually requires it next
     libXcursor # Adding this as well for mouse cursor management
+    # for runtime
+    imagemagick
   ];
 
   shellHook = ''

@@ -62,6 +62,7 @@ function comparescene {
     echo "For your current uebung the available assignment_references are:"
     ls assignment_references
   else
+    echo comparing..
     SCENE=$1
     PROGRESS="after_${2}"
     # compare a certain scene at a certain progress -> pipe to diffimage -> view diff image
