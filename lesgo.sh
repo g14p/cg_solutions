@@ -34,13 +34,6 @@ echo . . . fix those artefacts by perfecting kugelschnitt
 echo . . . fix the pixelerrors in ex03 as their rand actuallz uses seed? but unsure if possible
 echo . . . fix in ex03 at least the cornellbox -- the reference has more wild pixels -- so update 1h and see if gets better
 
-function init-ycm {
-  echo Initialize Ycm by generating compile_commands.json
-  sed -i "s/project (cg)/project(cg)\nset( CMAKE_EXPORT_COMPILE_COMMANDS ON ) # ONLY FOR YouCompleteMe/" CMakeLists.txt
-  cmake .
-
-}
-
 function update {
   ./cg --create-images
 }
