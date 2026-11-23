@@ -1,10 +1,17 @@
 
 *
 !default.nix
-!cg_exercise01/01_colors/src/exercise_01.cpp
-!cg_exercise02/02_whitted/src/exercise_02.cpp
-!cg_exercise03/03_path_tracing/src/exercise_03.cpp
-!cg_exercise04/04_textures/src/exercise_04.cpp
-!cg_exercise05/05_bvh/src/exercise_05.cpp
-!cg_exercise06/06_shaders/src/exercise_06.cpp
-!cg_exercise07/07_shadow_mapping/src/exercise_07.cpp
+!cg_exercise01/*/src/exercise_01.cpp
+!cg_exercise01/*/src/secret/*
+!cg_exercise02/*/src/exercise_02.cpp
+!cg_exercise02/*/src/secret/*
+!cg_exercise03/*/src/exercise_03.cpp
+!cg_exercise03/*/src/secret/*
+!cg_exercise04/*/src/exercise_04.cpp
+!cg_exercise04/*/src/secret/*
+!cg_exercise05/*/src/exercise_05.cpp
+!cg_exercise05/*/src/secret/*
+!cg_exercise06/*/src/exercise_06.cpp
+!cg_exercise06/*/src/secret/*
+!cg_exercise07/*/src/exercise_07.cpp
+!cg_exercise07/*/src/secret/*
