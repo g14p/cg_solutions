@@ -1,4 +1,3 @@
-#include <bit>
 #include <cglib/rt/renderer.h>
 #include <cglib/rt/intersection_tests.h>
 #include <cglib/rt/raytracing_context.h>
@@ -9,9 +8,7 @@
 #include <cglib/rt/material.h>
 #include <cglib/rt/render_data.h>
 #include <cglib/core/thread_local_data.h>
-#include <cglib/core/assert.h>
-#include <glm/geometric.hpp>
-#include <limits>
+
 /*
  * Creates a random sample on a unit sphere
  *
@@ -24,14 +21,7 @@ uniform_sample_sphere(float u1, float u2)
 {
 	// TODO AmbientOcclusion/IndirectIllumination: 
 	// implement uniform sampling on a unit sphere
-        float h = 1.f - 2*u1;
-        float r = sqrt(1.f-h*h); 
-	glm::vec3 d = glm::vec3(
-                r*cos(2.f * std::numbers::pi * u2 ),
-                h,
-                r*sin(2.f * std::numbers::pi * u2 )
-        );
-        return glm::normalize(d);
+	return glm::vec3(0.0);
 }
 
 /*
@@ -49,19 +39,7 @@ uniform_sample_hemisphere(RenderData& data, glm::vec3 const& N)
 	// implement uniform sampling on a unit hemisphere.
 	// data.tld->rand() creates uniform [0, 1] random numbers
 	// TIP: use uniform_sample_sphere 
-        
-        cg_assert(1.f - glm::length(N) < EPSILON);
-        
-        glm::vec3 d = -N;
-        bool d_valid = false;
-        do {
-            float u2 = data.tld->rand();
-            float u1 = data.tld->rand();
-            d = uniform_sample_sphere(u1, u2);
-            d_valid = glm::dot(N, d) > 0.f;
-        } // reselect d until if it is located on the wrong hemisphere (opposed to N) 
-        while (!d_valid);
-        return d;
+	return glm::vec3(0.0);
 }
 
 float evaluate_ambient_occlusion(
@@ -73,15 +51,7 @@ float evaluate_ambient_occlusion(
 	float ambient_occlusion = 0.f;
 	for (int i = 0; i < data.context.params.ao_rays; ++i)
 	{
-            glm::vec3 direction = uniform_sample_hemisphere(data, N);
-            float dist = max_unobstructed_distance(data, P, direction, N); 
-            float c = 1.f / (data.context.params.half_ao_radius * data.context.params.half_ao_radius);
-            float visibility = (dist == std::numeric_limits<float>::max()) ? 1.f
-               : 1 - 1.f / (1 + c * dist * dist);
-            ambient_occlusion += visibility * glm::dot(N, direction);
-
 	}
-        ambient_occlusion *= 2.f / data.context.params.ao_rays;
 
 	return ambient_occlusion;
 }
@@ -135,39 +105,7 @@ glm::vec3 evaluate_illumination(
 	glm::vec3 indirect_illumination(0.f);
 	if (data.context.params.indirect)
 	{
-            // TODO IndirectIllumination: compute indirect illumination with russian roulette
-            
-            for( int i = 0; i < data.context.params.indirect_rays; i++) {
-                
-
-                for (auto& light : data.context.get_active_scene()->lights)
-		{
-                        
-                        glm::vec3 direction = uniform_sample_hemisphere(data, N);
-                        Ray ray(P, direction);
-                        //float cos_theta = glm::dot(N, direction); 
-			const glm::vec3 LP = light->getPosition();
-                        const glm::vec3 L = glm::normalize(LP - P);
-                        glm::vec3 brdf = evaluate_phong_BRDF(data, mat, L, N, V);
-                        if (data.context.params.russian_roulette)
-                        {
-                            if (depth >= data.context.params.russian_roulette_depth_thresh)
-                            {
-                                bool ray_survives = data.tld->rand() <= data.context.params.russian_roulette_surv_prop; 
-                                if(ray_survives)
-                                    indirect_illumination += brdf * trace_recursive(data, ray, depth + 1);
-                            }
-                        }
-                        else {
-                                indirect_illumination += brdf * trace_recursive(data, ray, depth + 1);
-                        }
-                        //std::cout<<"depth is " << depth << std::endl;
-
-                }
-		indirect_illumination /= data.context.get_active_scene()->lights.size();
-
-           }
-            indirect_illumination *= 2.f / data.context.params.indirect_rays;
+		// TODO IndirectIllumination: compute indirect illumination with russian roulette
 	}
 
 	return direct_illumination + indirect_illumination;
