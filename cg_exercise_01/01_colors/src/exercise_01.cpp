@@ -1,6 +1,6 @@
-#include <cglib/colors/exercise.h>
-#include <cglib/colors/convert.h>
 #include <cglib/colors/cmf.h>
+#include <cglib/colors/convert.h>
+#include <cglib/colors/exercise.h>
 
 #include <cglib/core/glheaders.h>
 #include <cglib/core/glmstream.h>
@@ -12,24 +12,30 @@
  * Draw the given vertices directly as GL_TRIANGLES.
  * For each vertex, also set the corresponding color.
  */
-void draw_triangles(
-	std::vector<glm::vec3> const& vertices,
-	std::vector<glm::vec3> const& colors)
-{
-	cg_assert(vertices.size() == colors.size());
-	cg_assert(vertices.size() % 3 == 0);
+void draw_triangles(std::vector<glm::vec3> const &vertices,
+                    std::vector<glm::vec3> const &colors) {
+  cg_assert(vertices.size() == colors.size());
+  cg_assert(vertices.size() % 3 == 0);
 
+  glBegin(GL_TRIANGLE_STRIP);
+  for (long unsigned int i = 0; i < vertices.size(); i++) {
+    glm::vec3 color = colors[i];
+    glm::vec3 vertex = vertices[i];
+    glColor3fv(&color[0]);
+    glVertex3fv(&vertex[0]);
+  }
+  glEnd();
 }
 
 /*
- * Generate a regular grid of resolution N*N (2*N*N triangles) in the xy-plane (z=0).
- * Store the grid in vertex-index form.
+ * Generate a regular grid of resolution N*N (2*N*N triangles) in the xy-plane
+ * (z=0). Store the grid in vertex-index form.
  *
  * The vertices of the triangles should be in counter clock-wise order.
  *
  * The grid must fill exactly the square [0, 1]x[0, 1], and must
  * be generated as an Indexed Face Set (Shared Vertex representation).
- * 
+ *
  * The first vertex should be at position (0,0,0) and the last
  * vertex at position (1,1,0)
  *
@@ -51,18 +57,32 @@ void draw_triangles(
  *          x
  *
  */
-void generate_grid(
-	std::uint32_t N,
-	std::vector<glm::vec3>* vertices,
-	std::vector<glm::uvec3>* indices)
-{
-	cg_assert(N >= 1);
-	cg_assert(vertices);
-	cg_assert(indices);
+void generate_grid(std::uint32_t N, std::vector<glm::vec3> *vertices,
+                   std::vector<glm::uvec3> *indices) {
+  cg_assert(N >= 1);
+  cg_assert(vertices);
+  cg_assert(indices);
+  vertices->clear();
+  indices->clear();
+  for (unsigned long int i = N; i < N; i++) {
+    for (unsigned long int j = 0; j < N; j++) {
+      double x_location = (double)i / (double)N;
+      double y_location = (double)j / (double)N;
+      glm::vec3 vertex = glm::vec3(x_location, y_location, 0.0);
+      vertices->push_back(vertex);
+    }
+  }
 
-	vertices->clear();
-	indices->clear();
-
+  // Indices are of type uvec3 so each one stands for a whole triplet /
+  // dreiangle
+  for (unsigned int i = 0; i < N; i++) {
+    for (unsigned int j = 0; j < N; j++) {
+      glm::uvec3 lower(i, i + 1, N + i + 1);
+      glm::uvec3 upper(N + i + 1, N + i + 2, i + 1);
+      indices->push_back(lower);
+      indices->push_back(upper);
+    }
+  }
 }
 
 /*
@@ -72,13 +92,22 @@ void generate_grid(
  * Don't forget to enable the correct client states. After drawing
  * the triangles, you need to disable the client states again.
  */
-void draw_indexed_triangles(
-	std::vector<glm::vec3>  const& vertices,
-	std::vector<glm::vec3>  const& colors,
-	std::vector<glm::uvec3> const& indices)
-{
-	cg_assert(vertices.size() == colors.size());
+void draw_indexed_triangles(std::vector<glm::vec3> const &vertices,
+                            std::vector<glm::vec3> const &colors,
+                            std::vector<glm::uvec3> const &indices) {
+  cg_assert(vertices.size() == colors.size());
+  glEnableClientState(GL_VERTEX_ARRAY);
+  glEnableClientState(GL_COLOR_ARRAY);
 
+  glVertexPointer(3, GL_FLOAT, 0, vertices.data());
+  glColorPointer(3, GL_FLOAT, 0, colors.data());
+
+  // draw'em
+  glDrawElements(GL_TRIANGLES, indices.size() * 3, GL_UNSIGNED_INT,
+                 indices.data());
+
+  glEnableClientState(GL_VERTEX_ARRAY);
+  glEnableClientState(GL_COLOR_ARRAY);
 }
 
 /*
@@ -104,31 +133,24 @@ void draw_indexed_triangles(
  *           x
  *
  */
-void generate_strip(
-	std::uint32_t N,
-	std::vector<glm::vec3>* vertices)
-{
-	cg_assert(N >= 1);
-	cg_assert(vertices);
+void generate_strip(std::uint32_t N, std::vector<glm::vec3> *vertices) {
+  cg_assert(N >= 1);
+  cg_assert(vertices);
 
-	vertices->clear();
-
+  vertices->clear();
 }
 
 /*
  * Draw the given vertices as a triangle strip.
  * For each vertex, also set the corresponding color.
  */
-void draw_triangle_strip(
-	std::vector<glm::vec3> const& vertices,
-	std::vector<glm::vec3> const& colors)
-{
-	cg_assert(vertices.size() == colors.size());
-
+void draw_triangle_strip(std::vector<glm::vec3> const &vertices,
+                         std::vector<glm::vec3> const &colors) {
+  cg_assert(vertices.size() == colors.size());
 }
 
 /*
- * Integrate the given piecewise linear function 
+ * Integrate the given piecewise linear function
  * using trapezoidal integration.
  *
  * The function is given at points
@@ -136,14 +158,12 @@ void draw_triangle_strip(
  * and its corresponding values are
  *     y[0], ..., y[N]
  */
-float integrate_trapezoidal_student(
-	std::vector<float> const& x,
-	std::vector<float> const& y)
-{
-	cg_assert(x.size() == y.size());
-	cg_assert(x.size() > 1);
+float integrate_trapezoidal_student(std::vector<float> const &x,
+                                    std::vector<float> const &y) {
+  cg_assert(x.size() == y.size());
+  cg_assert(x.size() > 1);
 
-	return 0.f;
+  return 0.f;
 }
 
 /*
@@ -156,13 +176,12 @@ float integrate_trapezoidal_student(
  * and
  *     cglib/src/colors/cmf.cpp
  *
- * The wavelengths corresponding to the spectral values 
+ * The wavelengths corresponding to the spectral values
  * given in spectrum are defined in cmf::wavelengths
  */
-glm::vec3 spectrum_to_rgb(std::vector<float> const& spectrum)
-{
-	cg_assert(spectrum.size() == cmf::wavelengths.size());
+glm::vec3 spectrum_to_rgb(std::vector<float> const &spectrum) {
+  cg_assert(spectrum.size() == cmf::wavelengths.size());
 
-	return glm::vec3(0.f);
+  return glm::vec3(0.f);
 }
 // CG_REVISION 1a959d5c03dc7dc8e3a9c13373bcf7e71e5701bf
