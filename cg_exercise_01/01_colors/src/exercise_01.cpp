@@ -64,7 +64,8 @@ void generate_grid(std::uint32_t N, std::vector<glm::vec3> *vertices,
   cg_assert(indices);
   vertices->clear();
   indices->clear();
-  for (unsigned long int i = N; i < N; i++) {
+
+  for (unsigned long int i = 0; i < N; i++) {
     for (unsigned long int j = 0; j < N; j++) {
       double x_location = (double)i / (double)N;
       double y_location = (double)j / (double)N;
