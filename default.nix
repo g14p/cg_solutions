@@ -2,7 +2,7 @@
 pkgs.mkShell {
   buildInputs = with pkgs; [
     # Build systems and tools
-    cmake
+    cmake #  --- DEPRECATED CMAKE WARNINGS --> just increase cmake_min_req to 4.3
     pkg-config
     gnumake
     gcc
@@ -30,3 +30,4 @@ pkgs.mkShell {
     export LD_LIBRARY_PATH=/run/opengl-driver/lib:/run/opengl-driver-32/lib:$LD_LIBRARY_PATH
   '';
 }
+
