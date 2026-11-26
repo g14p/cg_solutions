@@ -27,6 +27,9 @@ NC='\033[0m' # Reset (No Color)
 
 echo "If its the first time since cloning u need the rest of the files"
 echo "download the .zip from ilias and unzip it here.."
+echo "also modify the CMakeLists.txt to"
+echo "- specify a modern cmake version like 4.3"
+echo "- add a line exporting compile_commands.json so the clang linter finds headers"
 echo -e "${BLUE}"
 echo -e " Q U I C K   O P T I O N S"
 echo -e " _________________________"
