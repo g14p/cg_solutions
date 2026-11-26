@@ -10,32 +10,44 @@
 
 BASE_PATH=~/git/cg_solutions
 #cd ${BASE_PATH}/cg_exercise_01/01_colors
-SCENES="box, spheres"
+#SCENES="<no scenes no reference imgs>"
 cd ${BASE_PATH}/cg_exercise_02/02_whitted
+SCENES="box, spheres"
 #cd ${BASE_PATH}/cg_exercise_03/03_path_tracing
+#SCENES="box, spheres"
 #cd ${BASE_PATH}/cg_exercise_04/04_textures
+#SCENES="box, spheres"
+
+# Terminal Colors
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+ORANGE='\033[0;33m'
+BLUE='\033[0;34m'
+NC='\033[0m' # Reset (No Color)
 
 ls assignment_references >/dev/null
 if [[ $? -eq 0 ]]; then
   echo
   echo "Your call :) "
+  echo -e "${BLUE}"
   echo "--- 'showimages' the images"
   echo "--- 'update' to render them again"
   echo "--- 'comparescene' to see the difference in red .. or directly"
-  echo "---  if its the first time since cloning u need the rest of the files"
-  echo "     download the .zip from ilias and unzip it here.."
+  echo "--- 'v' into the source code to open with nvim"
+  echo -e "${NC}"
+  echo "     if its the first time since cloning u need the rest of the files"
+  echo "     NC the .zip from ilias and unzip it here.."
 else
   echo No images available.
 fi
-echo "nvim into the source code with 'v'"
 echo
 echo Last thing i did:
 echo --------------------
-echo $(git log -n 1 --decorate=no | tail -n 1)
-echo Some time may need to
-echo . . . fix those artefacts by perfecting kugelschnitt
-echo . . . fix the pixelerrors in ex03 as their rand actuallz uses seed? but unsure if possible
-echo . . . fix in ex03 at least the cornellbox -- the reference has more wild pixels -- so update 1h and see if gets better
+echo -e "${GREEN}$(git log -n 1 --decorate=no | tail -n 1)"
+echo -e "${NC}Some time may need to"
+echo -e "${ORANGE}. . . fix those artefacts by perfecting kugelschnitt"
+echo -e "${RED}. . . fix cg font in Ex01"
+echo -e "${NC}"
 
 function update {
   ./cg --create-images
@@ -73,5 +85,5 @@ function comparescene {
 
 }
 function v {
-  nvim -p src/exercise_* ~/lesgo.sh .
+  nvim -p src/exercise_* ../../lesgo.sh .
 }
