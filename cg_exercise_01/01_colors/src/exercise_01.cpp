@@ -17,7 +17,7 @@ void draw_triangles(std::vector<glm::vec3> const &vertices,
   cg_assert(vertices.size() == colors.size());
   cg_assert(vertices.size() % 3 == 0);
 
-  glBegin(GL_TRIANGLE_STRIP);
+  glBegin(GL_TRIANGLES);
   for (long unsigned int i = 0; i < vertices.size(); i++) {
     glm::vec3 color = colors[i];
     glm::vec3 vertex = vertices[i];
@@ -64,7 +64,7 @@ void generate_grid(std::uint32_t N, std::vector<glm::vec3> *vertices,
   cg_assert(indices);
   vertices->clear();
   indices->clear();
-
+  /*
   for (unsigned long int i = 0; i < N; i++) {
     for (unsigned long int j = 0; j < N; j++) {
       double x_location = (double)i / (double)N;
@@ -84,12 +84,13 @@ void generate_grid(std::uint32_t N, std::vector<glm::vec3> *vertices,
       indices->push_back(upper);
     }
   }
+  */
 }
 
 /*
  * Draw the given vertices as indexed GL_TRIANGLES using glDrawElements.
  * For each vertex, also set the corresponding color.
- *
+ * TODO chill a but
  * Don't forget to enable the correct client states. After drawing
  * the triangles, you need to disable the client states again.
  */
@@ -97,6 +98,8 @@ void draw_indexed_triangles(std::vector<glm::vec3> const &vertices,
                             std::vector<glm::vec3> const &colors,
                             std::vector<glm::uvec3> const &indices) {
   cg_assert(vertices.size() == colors.size());
+
+  /*
   glEnableClientState(GL_VERTEX_ARRAY);
   glEnableClientState(GL_COLOR_ARRAY);
 
@@ -109,6 +112,7 @@ void draw_indexed_triangles(std::vector<glm::vec3> const &vertices,
 
   glEnableClientState(GL_VERTEX_ARRAY);
   glEnableClientState(GL_COLOR_ARRAY);
+  */
 }
 
 /*
