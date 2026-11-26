@@ -9,10 +9,10 @@
 # Date : Looking forward to such things
 
 BASE_PATH=~/git/cg_solutions
-#cd ${BASE_PATH}/cg_exercise_01/01_colors
-#SCENES="<no scenes no reference imgs>"
-cd ${BASE_PATH}/cg_exercise_02/02_whitted
-SCENES="box, spheres"
+cd ${BASE_PATH}/cg_exercise_01/01_colors
+SCENES="<no scenes no reference imgs>"
+#cd ${BASE_PATH}/cg_exercise_02/02_whitted
+#SCENES="box, spheres"
 #cd ${BASE_PATH}/cg_exercise_03/03_path_tracing
 #SCENES="box, spheres"
 #cd ${BASE_PATH}/cg_exercise_04/04_textures
@@ -25,7 +25,15 @@ ORANGE='\033[0;33m'
 BLUE='\033[0;34m'
 NC='\033[0m' # Reset (No Color)
 
-ls assignment_references >/dev/null
+echo "If its the first time since cloning u need the rest of the files"
+echo "download the .zip from ilias and unzip it here.."
+echo -e "${BLUE}"
+echo -e " Q U I C K   O P T I O N S"
+echo -e " _________________________"
+echo
+echo "   --- 'v' into the source code to open with nvim"
+echo -e "${NC}"
+ls assignment_references 2>/dev/null
 if [[ $? -eq 0 ]]; then
   echo
   echo "Your call :) "
@@ -33,21 +41,22 @@ if [[ $? -eq 0 ]]; then
   echo "--- 'showimages' the images"
   echo "--- 'update' to render them again"
   echo "--- 'comparescene' to see the difference in red .. or directly"
-  echo "--- 'v' into the source code to open with nvim"
-  echo -e "${NC}"
-  echo "     if its the first time since cloning u need the rest of the files"
-  echo "     NC the .zip from ilias and unzip it here.."
 else
-  echo No images available.
+  echo -e "   ${ORANGE}No images available.${NC}"
 fi
 echo
-echo Last thing i did:
-echo --------------------
-echo -e "${GREEN}$(git log -n 1 --decorate=no | tail -n 1)"
-echo -e "${NC}Some time may need to"
-echo -e "${ORANGE}. . . fix those artefacts by perfecting kugelschnitt"
-echo -e "${RED}. . . fix cg font in Ex01"
-echo -e "${NC}"
+echo " O V E R V I E W   O F   P R O G R E S S "
+echo
+echo " +---------------------------------------------------------"
+echo " | "
+echo -e " | ${NC}Last Commit:${NC}"
+echo -e " | ${GREEN}$(git log -n 1 --decorate=no | tail -n 1)${NC}"
+echo " | "
+echo -e " | ${NC}Next TODOs${NC}"
+echo -e " | ${ORANGE}. . . continue ex02 ${NC}"
+echo -e " | ${RED}. . . fix generate grid in ex01${NC}"
+echo " | "
+echo " +---------------------------------------------------------"
 
 function update {
   ./cg --create-images
