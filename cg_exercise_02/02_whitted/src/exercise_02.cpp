@@ -8,7 +8,7 @@
 #include <cglib/rt/scene.h>
 
 /*
- * TODO: implement a ray-sphere intersection test here.
+ * NOTE: implement a ray-sphere intersection test here.
  * The sphere is defined by its center and radius.
  *
  * Return true, if (and only if) the ray intersects the sphere.
